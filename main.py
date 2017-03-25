@@ -26,23 +26,22 @@ staetus = "dnd"
 @client.event
 async def on_ready():
     print("=-=-=-=-=-=-=")
-    print("Radis" + version)
-    print(" ")
-    print("Pret ! ")
+    print("TuxBot" + version)
+    print("Ready ! ")
     print("Vous pouvez l'utiliser.")
     await client.change_presence(game=discord.Game(name=game), status=discord.Status(staetus), afk=False) ## Game set in config.py
     print("Jeu joué : " + game)
-    print(client.user.name)
-    print(client.user.id)
+    print("Pseudo du bot : " + client.user.name)
+    print("UserID du bot : " + client.user.id)
     print("=-=-=-=-=-=-=")
 
 @client.event
 async def on_message(message):
     
-    roles = ["Admin"]
+    roles = ["admin", "Admin", "ADMIN"]
     role = message.author.roles
 
-    if message.content.startswith(prefix + "debug ping") and str(auteur) in roles:##AFK
+    if message.content.startswith(prefix + "debug ping") and str(role[1]) in roles:
         msg = await client.send_message(message.channel, message.author.mention + "[**Debug**] : Bot online !")
 
     elif message.content.startswith(prefix + "say") and str(role[1]) in roles: ##CONTROL
@@ -52,20 +51,18 @@ async def on_message(message):
       await client.send_message(message.channel, args_[1])
       await client.delete_message(message)
 
-    elif message.content.startswith(prefix + 'debug role') and str(role[1]) in roles:
-      msg = await client.send_message(message.channel, '[**Debugage**] role[1] =' + str(message.author.roles[1]))
-
     elif message.content.startswith(prefix + 'clear') and str(role[1]) in roles:
         args = message.content.split(" ")
         argument = int(args[1])
         argument = argument+1
         deleted = await client.purge_from(message.channel, limit=argument)
+        msg = await client.send_message(message.channel, message.author.mention + " les messages ont bien été supprimés")
 
     elif message.content.startswith(prefix + 'changegame') and str(role[1]) in roles:
         args = message.content.split("(")
         argument = args[1]
         await client.change_presence(game=discord.Game(name=args[1]), status=discord.Status(staetus), afk=False) ## Game set in config.py
-        print("[Debug] Jeu modifié ! ")
+        msg = await client.send_message(message.channel, message.author.mention + " le jeu à bien été modifié !")
 
     elif message.content.startswith(prefix + 'search docubuntu'):
         args_ = message.content.split(" ")
@@ -112,7 +109,7 @@ async def on_message(message):
         msg = await client.send_message(message.channel, "La piece est retombé sur " + piece)
 
     elif message.content.startswith(prefix + "joke"): ##Joke
-        joke = random.choice(['Linux : lose your time\nMac : lose your money','Un virus est un programme nocif.\nIl est petit, rapide, prend peu de place en mémoire et sais se faire discret.\nOSX n\'est donc pas un virus, c\'est un bug.','Quel est le plus gros Apple du monde ? \n *Le big MAC...*','OSX est à l\'informatique ce que la tectonick est à la musique...','Si les OS étaient des élèves:\nOSX: Le plus vieux\nLinux: Le premier de la classe\nWindows: Le différent victimisé','Windows, Mac Os et Linux sont aux toilettes.  Mac OS se lave complètement les mains en sortant et déclare : Rien de plus sûr que ça ! Linux se lave uniquement deux doigts : Pas besoin de plus de sécurité ! Windows sort sans se laver les mains : Chez Windows, on ne s\'urine pas dessus !','https://cdn.discordapp.com/attachments/187284361505144833/187287424852951042/unknown.png !','Les hyperboles sa sert à manger des hyper-soupes :3 (Lawl!)','Attention : une étude récente a prouvé que la consommation prolongée de drogues peut définitivement endommager la mémoire à court terme.','https://images-1.discordapp.net/.eJwlyFEKhCAQANC7eAAn09TtNmJisTUjzkQf0d1bWHhf71Zn39WsVpHGM8Cycaa-aBbqqRZdiepeUttYZzogiaS8HgWFwcQwRme9mYbJOBet_VcwYbTB-8_wAyd-kS7UDat6XggYIuY.Tzl6-x2F39v_DjLRKkOBafZcvUg.png','C\'est un aveugle qui rentre dans un bar, qui rentre dans une chaise, qui rentre dans une table,..', 'Le comble de Windows, c’est que pour l’arrêter, il faut cliquer sur démarrer x)', 'C\'est un type qui rentre dans un bar et qui s\'exclame "Salut c\'est moi !", tout le monde se retourne, c\'était pas lui...', 'Que prend un éléphant dans un bar ? De la place...', 'Un zoophile prend son élan avant de rentrer dans un bar :D !', 'Pourquoi un aveugle vous tutoi ? Car il ne vous voit pas.....', 'C\'est une requête SQL qui rentre dans un bar et qui s\'adresse à deux tables : Puis-je vous joindre ?','Combien de développeurs faut-il pour remplacer une ampoule grillée ? Aucun, c\'est un problème Hardware.','4h du matin un homme rentre chez lui mort bourré. Pour ne pas se faire prendre par sa femme il decide de se faire un jus de citron. Le lendemain matin sa femme lui crie dessus. "Tu as encore bus comme un trou hier" L\'homme: "Mais non" La femme: "A ouais et le cannari dans le presse citron il s\'est suicider"', 'Il ne faut jamais croire les girafes, c\'est un cou monté.', 'Quelle est la seule fonctionnalité qui n\'as jamais planté sur Windows ? Le BSOD', 'Windows n\'aime pas quel l\'on appel un dossier con, car c\'est le synonyme de son créateur (Gaston Portail)', 'Pourquoi personne n\'aime ISS? Car il était utilisé par les NAZIS', 'Sous Mac il n\'y a qu\'un virus : MacOSX', 'Le meilleur entreprise de système d\'exploitation ? Apple : Ils exploitent ton argent', 'Windows est un OS. Il est dur, n\'as pas de goût et on veut l\'enterrer']) #Source Bukkit.fr | https://www.bukkit.fr/topic/21638-recensement-de-blagues/
+        joke = random.choice(['C\'est possible d\'installer i3 sur un processeur AMD ?','Linux : lose your time\nMac : lose your money','Un virus est un programme nocif.\nIl est petit, rapide, prend peu de place en mémoire et sais se faire discret.\nOSX n\'est donc pas un virus, c\'est un bug.','Quel est le plus gros Apple du monde ? \n *Le big MAC...*','OSX est à l\'informatique ce que la tectonick est à la musique...','Si les OS étaient des élèves:\nOSX: Le plus vieux\nLinux: Le premier de la classe\nWindows: Le différent victimisé','Windows, Mac Os et Linux sont aux toilettes.  Mac OS se lave complètement les mains en sortant et déclare : Rien de plus sûr que ça ! Linux se lave uniquement deux doigts : Pas besoin de plus de sécurité ! Windows sort sans se laver les mains : Chez Windows, on ne s\'urine pas dessus !','https://cdn.discordapp.com/attachments/187284361505144833/187287424852951042/unknown.png !','Les hyperboles sa sert à manger des hyper-soupes :3 (Lawl!)','Attention : une étude récente a prouvé que la consommation prolongée de drogues peut définitivement endommager la mémoire à court terme.','https://images-1.discordapp.net/.eJwlyFEKhCAQANC7eAAn09TtNmJisTUjzkQf0d1bWHhf71Zn39WsVpHGM8Cycaa-aBbqqRZdiepeUttYZzogiaS8HgWFwcQwRme9mYbJOBet_VcwYbTB-8_wAyd-kS7UDat6XggYIuY.Tzl6-x2F39v_DjLRKkOBafZcvUg.png','C\'est un aveugle qui rentre dans un bar, qui rentre dans une chaise, qui rentre dans une table,..', 'Le comble de Windows, c’est que pour l’arrêter, il faut cliquer sur démarrer x)', 'C\'est un type qui rentre dans un bar et qui s\'exclame "Salut c\'est moi !", tout le monde se retourne, c\'était pas lui...', 'Que prend un éléphant dans un bar ? De la place...', 'Un zoophile prend son élan avant de rentrer dans un bar :D !', 'Pourquoi un aveugle vous tutoi ? Car il ne vous voit pas.....', 'C\'est une requête SQL qui rentre dans un bar et qui s\'adresse à deux tables : Puis-je vous joindre ?','Combien de développeurs faut-il pour remplacer une ampoule grillée ? Aucun, c\'est un problème Hardware.','4h du matin un homme rentre chez lui mort bourré. Pour ne pas se faire prendre par sa femme il decide de se faire un jus de citron. Le lendemain matin sa femme lui crie dessus. "Tu as encore bus comme un trou hier" L\'homme: "Mais non" La femme: "A ouais et le cannari dans le presse citron il s\'est suicider"', 'Il ne faut jamais croire les girafes, c\'est un cou monté.', 'Quelle est la seule fonctionnalité qui n\'as jamais planté sur Windows ? Le BSOD', 'Windows n\'aime pas quel l\'on appel un dossier con, car c\'est le synonyme de son créateur (Gaston Portail)', 'Pourquoi personne n\'aime ISS? Car il était utilisé par les NAZIS', 'Sous Mac il n\'y a qu\'un virus : MacOSX', 'Le meilleur entreprise de système d\'exploitation ? Apple : Ils exploitent ton argent', 'Windows est un OS. Il est dur, n\'as pas de goût et on veut l\'enterrer']) #Source Bukkit.fr | https://www.bukkit.fr/topic/21638-recensement-de-blagues/
         await client.send_typing(message.channel)
         msg = await client.send_message(message.channel, message.author.mention + " " + joke)
 
@@ -166,7 +163,6 @@ async def on_message(message):
     elif message.content.startswith(prefix + "yt"): ##yt error
         msg = await client.send_message(message.channel, message.author.mention + "❌ __**[Erreur]**__ Commandes disponibles: 👉 .yt discover : Découvrir des chaînes youtubes !")
 
-##PHONE UPDATE
     elif message.content.startswith(prefix + 'phone send 3360 EX'): ##Phone
         reponse = random.choice(['oui','non','oui','non'])
         msg = await client.send_message(message.author, message.author.mention + 'ℹ Vous avez un nouveau message !\nLe 3360 (Maintenant): Votre Ex vous aime toujours ? La réponse est ' + str(reponse))
@@ -196,18 +192,14 @@ async def on_message(message):
         msg = await client.send_message(message.author, message.author.mention + '📱 📒 Liste des numéros\nPour envoyer un message à un de ces numéros; .phone send Numéro Message\n \n👤 3360 | Votre ex vous aime t-il toujours ? Envoyez EX au 3360 !\n👤 3360 | Allez vous être tué lors d\'un attentat ? Envoyez DAESH au 3360\n👤 3360 | Votre enfant va t-il se faire tuer lors de la 3eme guerre mondiale? Envoyez GUERRE au 3360\n👤 3360 | Y\'a t-il une bombe allemande sous votre maison? Envoyez BOMBE au 3360\n \n👤 2512 | Envoyez votre liste au père noël !\n👤 666 | Envoyer un message au **DIABLE** ! Pour tuer votre voisin, etc...\👤 3360 | Quel est le meilleur système d\'exploitation ? Envoie BESTOS au 3360 !')
 
     elif message.content.startswith(prefix + 'phone help'): ##Phone
-        msg = await client.send_message(message.author, message.author.mention + 'TuxBot - 📱 Commandes .phone\nℹ Liste des commandes : \n👉 .phone list : affiche les numéros existants.\n👉 .phone send <Numéro> <Message>, envoie un message à un numéro.\n👉 .phone help, Affiche l\'aide')
+        await client.send_message(message.author, message.author.mention + 'TuxBot - 📱 Commandes .phone\nℹ Liste des commandes : \n👉 .phone list : affiche les numéros existants.\n👉 .phone send <Numéro> <Message>, envoie un message à un numéro.\n👉 .phone help, Affiche l\'aide')
 
     elif message.content.startswith(prefix + 'phone'): ##Phone
-        msg = await client.send_message(message.channel, message.author.mention + '❌ __**[Erreur]**__ Une erreur est survenue. Essayez .phone help')
-##END PHONE Update
+        await client.send_message(message.channel, message.author.mention + '❌ __**[Erreur]**__ Une erreur est survenue. Essayez .phone help')
 
-##Start pokemon Update
-
-##COMMANDES
     elif(message.content.startswith(prefix + 'pokemon')): ##COMBAT
         await client.send_typing(message.channel)
-        poke1 = random.choice(['Ratifeu','Squirtle','Ninetales','Bulbizarre','Carabaffe','Carapuce','Roucarnage','Nidorino','Akwakwak','Miaouss','Ratifeu','Squirtle','Ninetales','Bulbizarre','Carabaffe','Carapuce','Roucarnage','Nidorino','Akwakwak','Miaouss','outout14'])
+        poke1 = random.choice(['Tux','Ratifeu','Squirtle','Ninetales','Bulbizarre','Carabaffe','Carapuce','Roucarnage','Nidorino','Akwakwak','Miaouss','Ratifeu','Squirtle','Ninetales','Bulbizarre','Carabaffe','Carapuce','Roucarnage','Nidorino','Akwakwak','Miaouss','outout14'])
         poke2 = random.choice(['Psyko','Arcanin','Boustiflor','Fantominus','Voltorbe','Excelangue','Poissirène','Magicarpe','Électhor','Joliflor','Cotovol','Mentali'])
         if(poke1 == "Tux"):
             win = "Tux"
@@ -222,11 +214,16 @@ async def on_message(message):
         await client.send_typing(message.channel)
         await asyncio.sleep(1)
         msg5 = await client.send_message(message.channel, '**📢 Présentateur** : **' + str(win) + '**')
-        await asyncio.sleep(30)
 
 
     elif message.content.startswith(prefix + 'help'): ##HELP
         await client.send_typing(message.channel)
-        msg = await client.send_message(message.channel,'TuxBot \nℹ Liste des commandes : \n \n📎 Diverses\n👉 .help, Afficher l\'aide.\n👉 .info, Affiche la version et d\'autres informations à propos de TuxBot\n👉 .phone help, Affiche l\'aide pour le téléphone\n \n🛠 Utilitaires\n👉 .afk, Signaler son absence. \n👉 .back, Signaler son retour. \n👉 .clock france/canada/suisse, Affiche l\'heure. \n👉 .yt discover , Découvrir des chaînes youtubes ! \n \n👉 .search , Découvrir des chaînes youtubes ! \n \n😂  Funs\n 👉 .joke, Affiche une blague aléatoirement.\n👉 .ethylotest, Avez vous bu ?\n 👉 .coin, Lance une pièce.\n 👉 .pokemon, Lance un combate contre deux pokémons *(aléatoirement)*.\n \n📱Téléphone (Visibles dans .phone help)\n👉 .phone list : affiche les numéros existants.\n👉 .phone send <Numéro> <Message>, envoie un message à un numéro.\n👉 .phone help, Affiche l\'aide\n \n')
+        await client.send_message(message.channel,'TuxBot \nℹ Liste des commandes : \n \n📎 Diverses\n👉 .help, Afficher l\'aide.\n👉 .info, Affiche la version et d\'autres informations à propos de TuxBot\n👉 .phone help, Affiche l\'aide pour le téléphone\n👉 .github, Lien vers le github de TuxBot pour voir son code source \n \n🛠 Utilitaires\n👉 .afk, Signaler son absence. \n👉 .back, Signaler son retour. \n👉 .clock france/canada/suisse, Affiche l\'heure. \n👉 .search , Découvrir des chaînes youtubes ! \n \n😂  Funs\n👉 .joke, Affiche une blague aléatoirement.\n👉 .ethylotest, Avez vous bu ?\n 👉 .coin, Lance une pièce.\n 👉 .pokemon, Lance un combate contre deux pokémons *(aléatoirement)*.\n \n📱Téléphone (Visibles dans .phone help)\n👉 .phone list : affiche les numéros existants.\n👉 .phone send <Numéro> <Message>, envoie un message à un numéro.\n👉 .phone help, Affiche l\'aide\n \n')
+        
+        if str(role[1]) in roles: ##IF ADMINISTRATOR
+            await client.send_message(message.channel, ':eye: Administration (requiert grade ADMIN)\n👉 .say(_votre message_) (avec les paranthèses) : Fait le bot parler \n👉 .clear _nombre_ : Vide _nombre_ de messages \n👉 .debug ping : Test si le bot est en ligne et à la permission d\'écrire. \n👉 .changegame(_votre texte_) (avec les paranthèses): Change le jeu joué par TuxBot ')
 
+    elif message.content.startswith(prefix + 'github'): ##Link to github
+        await client.send_typing(message.channel)
+        await client.send_message(message.channel, message.author.mention + 'Oh c\'est sympa ! Tu veux aller voir mon code source sur Github ! :kissing_smiling_eyes: =>  https://github.com/outout14/tuxbot-bot')
 client.run(token)
