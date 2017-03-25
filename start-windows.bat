@@ -1,4 +1,4 @@
 @ECHO off
 color f8
-title Radis; un bot fun :)
+title TuxBOT / Windows 
 CMD /k python main.py
