@@ -2,23 +2,23 @@ __author__ = "Maël — outout14"
 __licence__ = "Apache License 2.0"
 
 ###########################
-#   RADIS CONFIGURATION   #
-#      by Outout14 :)     #
+#   TuxBot Config file    #
 ###########################
 
 
 ## TOKEN
-## Aide : (Créer l'aide)
+## Insert your DiscordAPP Token here
 token = "TOKEN"
 
 ##PREFIX
-##C'est quoi ? : (Créer page )
+##Default prefix .
 prefix = "."
 
-##Jeu joué
-##En savoir plus : (page)
+##Played Game
+##Select Played Game in Discord APP
 game = " Fun ! "
 
 
 ##Version information
-version = " Release 2.0 "
+## DONT TOUCH !
+version = " Release 3.0 "
