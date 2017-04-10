@@ -8,7 +8,7 @@ __licence__ = "Apache License 2.0"
 
 ## TOKEN
 ## Insert your DiscordAPP Token here
-token = "MjkzNDkwNTI2NTYzMzM2MTky.C7gj_g.p6uLXGTyHtsDtGs_RpcXiENEBFc"
+token = " "
 
 ##PREFIX
 ##Default prefix .
