@@ -6,7 +6,7 @@ TuxBot, un bot discord écrit en Python.
 Ici se trouve le code source de ce bot proventant du serveur Discord "Aide GNU/Linux-Fr". 
 
 ## Installation
-TuxBot à besoin de ``Python 3.5`` et de la librairie python ``discord.py`` pour fonctionner. Une fois ces deux "programmes" installés, éditez le fichier ``config.py`` en entrant votre token puis si vous êtes sous windows lancez le fichier ``start-windows.bat`` pour lancer le bot et si vous êtes sous linux, ouvrez un terminal dans le dossier du bot puis executez la commande ``python main.py`` ou ``python3.5 main.py`` (dépend de votre machine) 
+TuxBot à besoin de ``Python 3.5`` et des libraries : ``discord.py``,``beautifulsoup4``, ``pytz``, ``wikipedia``, ``requests`` pour fonctionner. Une fois ces "programmes" installés, éditez le fichier ``config.py`` en entrant votre token puis si vous êtes sous windows lancez le fichier ``start-windows.bat`` et si vous êtes sous linux lancer ``start.sh`` 
 
 ## Liens utiles 
 - Invitation au serveur discord "Aide GNU/Linux-Fr" => http://discord.gg/B5TzW7x

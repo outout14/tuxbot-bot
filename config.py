@@ -8,17 +8,15 @@ __licence__ = "Apache License 2.0"
 
 ## TOKEN
 ## Insert your DiscordAPP Token here
-token = "TOKEN"
+token = "MjkzNDkwNTI2NTYzMzM2MTky.C7gj_g.p6uLXGTyHtsDtGs_RpcXiENEBFc"
 
 ##PREFIX
 ##Default prefix .
-prefix = "."
+prefix = ":"
 
-##Played Game
-##Select Played Game in Discord APP
-game = " Fun ! "
-
+##Authorized channel
+op_channel = "tuxbot-dev"
 
 ##Version information
 ## DONT TOUCH !
-version = " Release 3.0 "
+version = " Release 4.0 "

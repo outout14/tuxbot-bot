@@ -1,229 +1,481 @@
-##################
-#   Help & Info  #
-# View Readme.md #
-##################
+﻿#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 __author__ = "Maël — outout"
 __licence__ = "Apache License 2.0"
 
 
-##################
+#################
 #   IMPORTS     #
 #################
 import discord ##Discord.py library
 import asyncio
 from config import * ##Configuration file
+from arrays import * ##arrays
 import random
 import time
 import sys
 import math
 import os
-import urllib 
+import urllib
+from bs4 import *
 import urllib.request ##URL functions
-
+import re
+import logging
+import datetime ##For Time
+import pytz ##For time
+import requests
+import wikipedia
 client = discord.Client()
-staetus = "dnd"
+status = "dnd"
+wikipedia.set_lang("fr")
 
+###########################################
+#                                         #
+#               LOGGER                    #
+#                                         #
+###########################################
+from logging.handlers import RotatingFileHandler
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s // [%(levelname)s] : %(message)s')
+file_handler = RotatingFileHandler('logs/activity.log', 'a', 1000000, 1)
+file_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
+logger.info(' \n \n New TuxBot instance \n \n')
+
+###########################################
+#           OPEN GAME FILE NAME           #
+###########################################
+game = open('msg/game.txt').read()
+
+
+###########################################
+#                                         #
+#             ON_READY                    #
+#                                         #
+###########################################
 @client.event
 async def on_ready():
-    print("=-=-=-=-=-=-=")
-    print("TuxBot" + version)
-    print("Ready ! ")
+    logger.info('BOT READY !')
+    print("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
+    print("TuxBot " + version)
+    logger.log(logging.DEBUG, 'TuxBot ' + version)
+    print(" ")
+    print("Pret ! ")
     print("Vous pouvez l'utiliser.")
-    await client.change_presence(game=discord.Game(name=game), status=discord.Status(staetus), afk=False) ## Game set in config.py
+    await client.change_presence(game=discord.Game(name=game), status=discord.Status(status), afk=False) ## Game set in config.py
     print("Jeu joué : " + game)
-    print("Pseudo du bot : " + client.user.name)
-    print("UserID du bot : " + client.user.id)
-    print("=-=-=-=-=-=-=")
+    print("Pseudo : " + client.user.name)
+    print("ID : " + client.user.id)
+    logger.debug('Bot ID : ' + client.user.id)
+    print("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
+
+###########################################
+#                                         #
+#             JOIN AND LEAVE              #
+#                                         #
+###########################################
+@client.event
+async def on_member_join(member):
+    logger.log(logging.INFO, member.name + ' joined the server !')
+    server = member.server
+    prv = await client.start_private_message(member)
+    fmt = 'Bienvenue {0.mention} sur le suberbe serveur discord **' + member.server.name + '** ! Je te conseil de lire #regles pour commencer !'
+    await client.send_message(prv, fmt.format(member))
+    await client.send_message(member.server.default_channel, '**Nous souhaitons la bienvenue à notre nouveau membre, ' + member.mention + ' sur le discord ' + member.server.name + ' ! **')
+
+@client.event
+async def on_member_remove(member):
+    logger.log(logging.INFO, member.name + ' left the server !')
+    await client.send_message(member.server.default_channel, "**" + member.name + ' nous a malheuresement quitté**, il a fait une grave erreur, nous le traquerons puis nous lui feront avaler le CD de Ubuntu !!! :smirk:')
+
+###########################################
+#                                         #
+#             DELETE MESSAGE              #
+#                                         #
+###########################################
+@client.event
+async def on_message_delete(message):
+    if not message.channel.is_private and not message.author.bot:
+        msg_log = open('logs/deleted_msg.log', 'a')
+        date = time.localtime(time.time())
+        msg_log.write(str(message.author.name) + " (" + message.author.id + ")\n")
+        msg_log.write("  -> serveur : " + message.server.name + " \n")
+        msg_log.write("  -> date    : " + str(time.strftime("%d %b %Y %H:%M:%S", date)) + "\n")
+        msg_log.write("  -> message : " + str(message.content) + "\n")
+        msg_log.write("--------------------------------------------------------------------------------------------------\n")
+        msg_log.close()
 
 @client.event
 async def on_message(message):
-    
-    roles = ["admin", "Admin", "ADMIN"]
-    role = message.author.roles
 
-    if message.content.startswith(prefix + "debug ping") and str(role[1]) in roles:
-        msg = await client.send_message(message.channel, message.author.mention + "[**Debug**] : Bot online !")
+###########################################
+#                                         #
+#             CUSTOMS FUNCTIONS           #
+#              BLOCKING AND ...           #
+#                                         #
+###########################################
+    roles = ["Admin", "ADMIN", "admin"]
 
-    elif message.content.startswith(prefix + "say") and str(role[1]) in roles: ##CONTROL
-      print("[Debug] Say command sended")
-      args_ = message.content.split("(")
-      argument = args_[1]
-      await client.send_message(message.channel, args_[1])
-      await client.delete_message(message)
+    def cmd(cmd_name):
+        if not message.channel.is_private and not message.author.bot:
+            if message.channel.name == op_channel:
+               return message.content.startswith(prefix + cmd_name)
 
-    elif message.content.startswith(prefix + 'clear') and str(role[1]) in roles:
-        args = message.content.split(" ")
-        argument = int(args[1])
-        argument = argument+1
-        deleted = await client.purge_from(message.channel, limit=argument)
-        msg = await client.send_message(message.channel, message.author.mention + " les messages ont bien été supprimés")
+    def op_cmd(cmd_name):
+        if not message.channel.is_private and not message.author.bot:
+            role = message.author.roles
+            try:
+                if str(role[0]) in roles or str(role[1]) in roles or str(role[2]) in roles or str(role[3]) in roles or str(role[4]) in roles:
+                    return message.content.startswith(prefix + cmd_name)
+            except IndexError:
+                logger.info(message.author.name + ' tried to execute an order without the necessary permissions. Message content : ' + message.content)
 
-    elif message.content.startswith(prefix + 'changegame') and str(role[1]) in roles:
-        args = message.content.split("(")
-        argument = args[1]
-        await client.change_presence(game=discord.Game(name=args[1]), status=discord.Status(staetus), afk=False) ## Game set in config.py
-        msg = await client.send_message(message.channel, message.author.mention + " le jeu à bien été modifié !")
+    if message.channel.is_private and not message.author.bot:
+        await client.send_message(message.channel, "Désolé mais mon papa m'a dit de ne pas parler par Message Privé, viens plutot sur un serveur discord !")
 
-    elif message.content.startswith(prefix + 'search docubuntu'):
+    for say_cmd in commands:
+        if message.content.startswith(prefix + say_cmd) and not message.channel.name == op_channel and not message.channel.is_private:
+            await client.send_message(message.author, "Désolé mais tu ne peux m'utiliser que dans " + op_channel + " !")
+            await client.delete_message(message)
+
+###########################################
+#                                         #
+#                ADMIN COMMANDS           #
+#                                         #
+###########################################
+
+    if op_cmd("sendlogs"):
+        wait = await client.send_message(message.channel, message.author.mention + " Le contenue du fichier log est entrain d'être envoyé... Veuillez patienter, cela peut prendre du temps !")
+        await client.send_file(message.author, fp="logs/activity.log", filename="activity.log", content="Voci mon fichier ``activity.log`` comme demandé !", tts=False)
+        await client.edit_message(wait, message.author.mention + " C'est bon vous venez de recevoir par message privé mon fichier de logs")
+
+    elif op_cmd("say"): #Control
+        args = message.content.split("say ")
+        try:
+            await client.send_message(message.channel, args[1])
+            logger.info(message.author.name + ' ordered TuxBot to say : ' + args[1])
+            await client.delete_message(message)
+        except IndexError:
+            await client.send_message(message.author, "**[ERREUR]** Merci de fournir le paramètre du message à dire, je ne suis pas dans ta tête !")
+            await client.delete_message(message)
+
+    elif op_cmd("clear"):
+        try:
+            args = message.content.split("clear ")
+            argument = int(args[1])
+            argument = argument+1
+            logger.info(message.author.name + ' ordered TuxBot to remove ' + args[1] + ' messages')
+            deleted = await client.purge_from(message.channel, limit=argument)
+            await client.send_message(message.author, args[1] + " messages ont bien été supprimés")
+        except IndexError:
+            await client.send_message(message.author, "**[ERREUR]** Merci de fournir le paramètre du nombre de message à supprimer, je ne suis pas dans ta tête !")
+            await client.delete_message(message)
+
+    elif op_cmd("changegame"):
+        args = message.content.split("changegame ")
+        try:
+            ngame = open('msg/game.txt','w')
+            ngame.write(args[1])
+            ngame.close()
+            rgame = open('msg/game.txt').read()
+            await client.change_presence(game=discord.Game(name=rgame), status=discord.Status(status), afk=False)
+            await client.send_message(message.author, "Mon jeu joué à bien été changé en : " + rgame)
+            await client.delete_message(message)
+            logger.info(message.author.name + ' changed the game played from tuxbot to : ' + args[1])
+        except IndexError:
+            await client.send_message(message.author, "**[ERREUR]** Merci de fournir le paramètre du jeu que je dois jouer, je ne suis pas dans ta tête !")
+            await client.delete_message(message)
+
+###########################################
+#                                         #
+#            WWW COMMANDS                 #
+#                                         #
+###########################################
+    elif cmd("search docubuntu"):
         args_ = message.content.split(" ")
-        argument = args_[1]
         await client.send_typing(message.channel)
-        await client.send_message(message.channel, message.author.mention + " **Veuillez patienter**, Je suis entrain de parcourir le WorldWideWeb, et ça peut prendre du temps ! ")
-        await client.send_typing(message.channel)
-        html = urllib.request.urlopen("https://doc.ubuntu-fr.org/" + args_[2]).read()
-        await client.send_typing(message.channel)
-        if "avez suivi un lien" in str(html):
-            await client.send_message(message.channel, message.author.mention + " :sob: Oh non ! Cette page n'existe pas sur la doc ubuntu-fr. Vous pouvez commencer à la rédiger ! https://doc.ubuntu-fr.org/"+ args_[2])
-        else:
-            await client.send_message(message.channel, message.author.mention + " :ok_hand: Trouvé ! Voici la page ramenant à votre recherche https://doc.ubuntu-fr.org/"+ args_[2])
+        try:
+           msg = await client.send_message(message.channel, message.author.mention + " **Veuillez patienter**, Je suis entrain de parcourir le WorldWideWeb avec comme terme de recherche " + args_[2] + ", et ça peut prendre du temps ! ")
+           html = urllib.request.urlopen("https://doc.ubuntu-fr.org/" + args_[2]).read()
+           if "avez suivi un lien" in str(html):
+              await client.edit_message(msg, message.author.mention + " :sob: Oh non ! Cette page n'existe pas sur la doc ubuntu-fr. Mais vous pouvez commencer à la rédiger ! https://doc.ubuntu-fr.org/"+ args_[2])
+           else:
+              await client.edit_message(msg, message.author.mention + " :ok_hand: Trouvé ! Voici la page ramenant à votre recherche https://doc.ubuntu-fr.org/"+ args_[2])
+        except IndexError:
+               await client.edit_message(msg, message.author.mention + " **Erreur** : veuillez entrer un terme de recherche !")
 
-    elif message.content.startswith(prefix + 'search wikileaks'):
+    elif cmd("search wikileaks"):
         args_ = message.content.split(" ")
-        argument = args_[1]
         await client.send_typing(message.channel)
-        await client.send_message(message.channel, message.author.mention + " **Veuillez patienter**, Je suis entrain de parcourir le WorldWideWeb, et ça peut prendre du temps ! ")
-        await client.send_typing(message.channel)
-        html = urllib.request.urlopen("https://search.wikileaks.org/?query=" + args_[2] + "#results").read()
-        await client.send_typing(message.channel)
-        if "0 results" in str(html):
-            await client.send_message(message.channel, message.author.mention + " :sob: Oh non ! Aucun élément ne correspond de pres ou de loin a votre recherche.")
-        else:
-            await client.send_message(message.channel, message.author.mention + " :ok_hand: Trouvé ! Le résultat de votre recherche est ici => https://search.wikileaks.org/?query=" + args_[2] + "#results")
+        try:
+           msg = await client.send_message(message.channel, message.author.mention + " **Veuillez patienter**, Je suis entrain de parcourir le WorldWideWeb avec comme terme de recherche " + args_[2] + ", et ça peut prendre du temps ! ")
+           await client.send_typing(message.channel)
+           html = urllib.request.urlopen("https://search.wikileaks.org/?query=" + args_[2] + "#results").read()
+           await client.delete_message(msg)
+           if "0 results" in str(html):
+               await client.edit_message(msg, message.author.mention + " :sob: Oh non ! Aucun élément ne correspond de pres ou de loin a votre recherche.")
+           else:
+               await client.edit_message(msg, message.author.mention + " :ok_hand: Trouvé ! Le résultat de votre recherche est ici => https://search.wikileaks.org/?query=" + args_[2] + "#results")
+        except IndexError:
+               await client.edit_message(msg, message.author.mention + " **Erreur** : veuillez entrer un terme de recherche !")
 
-    elif message.content.startswith(prefix + 'search'):
-        await client.send_typing(message.channel)
-        await client.send_message(message.channel, message.author.mention + " TuxBot - :mag: Commandes .search\n \n Attention ! : entrez vos termes de recherche sans espaces ! \n  \n :information_source: Liste des commandes : \n **Wikileaks** : .search wikileaks _terme de la recherche_ \n **Doc.ubuntu-fr.org** : .search docubuntu _terme de la recherche_")
+    elif cmd("search wikipedia"):
 
-    if message.content.startswith(prefix + "afk"):##AFK
-        msg = await client.send_message(message.channel, message.author.mention + " est désormais afk 🌚")
+        try:
+            args = message.content.split("search wikipedia")
+            wait = await client.send_message(message.channel, message.author.mention + " **Veuillez patienter**, Je suis entrain de parcourir Wikipedia avec comme terme de recherche " + args[1] + ", et ça peut prendre du temps ! ")
+            results = wikipedia.search(args[1])
+            nbmr = 0
+            msg = ""
+
+            for value in results:
+                nbmr = nbmr + 1
+                msg = msg + "**{}**: {} \n".format(str(nbmr), value)
+
+            em = discord.Embed(title='Résultats de : ' + args[1], description = msg, colour=0x4ECDC4)
+            em.set_thumbnail(url = "https://upload.wikimedia.org/wikipedia/commons/2/26/Paullusmagnus-logo_%28large%29.png")
+            await client.delete_message(wait)
+            final = await client.send_message(message.channel, embed=em)
+
+            for emoji in array_emoji:
+               await client.add_reaction(final, emoji)
+
+            res = await client.wait_for_reaction(message=final, user=message.author)
+
+            for emoji in array_emoji:
+                num_emoji = array_emoji.index(emoji)
+                if res.reaction.emoji == emoji:
+                    args_ = results[num_emoji]
+
+            try:
+                await client.delete_message(final)
+                await client.send_typing(message.channel)
+                wait = await client.send_message(message.channel, message.author.mention + " **Veuillez patienter**, Je suis entrain de chercher sur Wikipedia " + args_ + ", et ça peut prendre du temps ! ")
+                wp = wikipedia.page(args_)
+                wp_contenu = wp.summary[:200] + "..."
+                em = discord.Embed(title='Wikipedia : ' + wp.title, description = "{} \n _Lien_ : {} ".format(wp_contenu, wp.url), colour=0x9B59B6)
+                em.set_thumbnail(url = "https://upload.wikimedia.org/wikipedia/commons/2/26/Paullusmagnus-logo_%28large%29.png")
+                em.set_footer(text = "Source : Wikipedia")
+                await client.delete_message(wait)
+                await client.send_message(message.channel, embed=em)
+            except wikipedia.exceptions.PageError:
+                await client.delete_message(msg)
+                await client.send_message(message.channel, message.author.mention + " **Erreur interne** : une erreur interne est survenue, si cela ce reproduit contactez votre administrateur ou faites une Issue sur github !")
+            except wikipedia.exceptions.DisambiguationError:
+                await client
+            except UnboundLocalError:
+                await client.send_message(message.channel, message.author.mention + " **Erreur** : veuillez choisir une réaction valide !")
+
+        except IndexError:
+            await client.send_message(message.channel, message.author.mention + " **Erreur** : veuillez entrer un terme de recherche !")
+
+    elif cmd("yt"):
+        await client.send_typing(message.channel)
+        chaineyt = random.choice(youtube)
+        ytname = chaineyt.split(",")
+        yturl = chaineyt.split(": ")
+        ytname = ytname[0]
+
+        text = "Je peux te conseiller cette chaîne youtube : " + chaineyt
+        em = discord.Embed(title='Youtube Discover', description=text, colour=0xCD201F)
+        em.set_author(name=ytname, icon_url="http://outout.tech/tuxbot_files/loading.gif")
+        msg = await client.send_message(message.channel, embed=em)
+
+        ##GET ICON##
+        html_doc = urllib.request.urlopen(yturl[1]).read()
+        soup = BeautifulSoup(html_doc, "lxml")
+        getatr = soup.find_all("img", { "class" : "appbar-nav-avatar" }, ["src"])
+        getatr = str(getatr)
+        getatr = getatr.split('"')
+        em.set_author(name=ytname, icon_url=getatr[7])
+        await client.edit_message(msg, embed=em)
+
+###########################################
+#                                         #
+#            BASICS COMMANDS              #
+#                                         #
+###########################################
+    if cmd("afk"):##AFK
+        msg = await client.send_message(message.channel, message.author.mention + " s'absente de discord quelques instants...")
         await client.delete_message(message)
 
-    elif message.content.startswith(prefix + "back"): ##AFK
-        await client.send_message(message.channel, message.author.mention + " n'est plus afk 🌞")
+    elif cmd("back"): ##BACK
+        await client.send_message(message.channel, message.author.mention + " est de retour parmi nous (il a recussité !)")
         await client.delete_message(message)
 
+    elif cmd("ping"): #PING
+       t1 = time.perf_counter()
+       await client.send_typing(message.channel)
+       t2 = time.perf_counter()
+       result = round((t2-t1)*1000)
+       if int(result) >=200:
+          em = discord.Embed(title="Ping : " + str(result) + "ms", description="... c'est quoi ce ping !", colour=0xFF1111)
+          await client.send_message(message.channel, embed=em)
+       elif int(result) > 100 and int(result) < 200:
+          em = discord.Embed(title="Ping : " + str(result) + "ms", description="Ca va, ça peut aller, mais j'ai l'impression d'avoir 40 ans !", colour=0xFFA500)
+          await client.send_message(message.channel, embed=em)
+       elif int(result) <= 100:
+          em = discord.Embed(title="Ping : " + str(result) + "ms", description="Wow c'te vitesse de réaction, je m'épate moi-même !",colour=0x11FF11)
+          await client.send_message(message.channel, embed=em)
 
-    elif message.content.startswith(prefix + "coin"): ##PIECE
-        piece = random.choice(["Pile", "Face", "... Heu, je l'ai perdu !"])
+    elif cmd("coin"): ##PIECE
+        piece = random.choice(["Pile", "Face", "... Heu, je l'ai perdu !", "Pile, j'ai gagné !", "Enfaite c'est quoi pile, c'est quoi face ?"])
         await client.send_typing(message.channel)
         msg = await client.send_message(message.channel, "La piece est retombé sur " + piece)
 
-    elif message.content.startswith(prefix + "joke"): ##Joke
-        joke = random.choice(['C\'est possible d\'installer i3 sur un processeur AMD ?','Linux : lose your time\nMac : lose your money','Un virus est un programme nocif.\nIl est petit, rapide, prend peu de place en mémoire et sais se faire discret.\nOSX n\'est donc pas un virus, c\'est un bug.','Quel est le plus gros Apple du monde ? \n *Le big MAC...*','OSX est à l\'informatique ce que la tectonick est à la musique...','Si les OS étaient des élèves:\nOSX: Le plus vieux\nLinux: Le premier de la classe\nWindows: Le différent victimisé','Windows, Mac Os et Linux sont aux toilettes.  Mac OS se lave complètement les mains en sortant et déclare : Rien de plus sûr que ça ! Linux se lave uniquement deux doigts : Pas besoin de plus de sécurité ! Windows sort sans se laver les mains : Chez Windows, on ne s\'urine pas dessus !','https://cdn.discordapp.com/attachments/187284361505144833/187287424852951042/unknown.png !','Les hyperboles sa sert à manger des hyper-soupes :3 (Lawl!)','Attention : une étude récente a prouvé que la consommation prolongée de drogues peut définitivement endommager la mémoire à court terme.','https://images-1.discordapp.net/.eJwlyFEKhCAQANC7eAAn09TtNmJisTUjzkQf0d1bWHhf71Zn39WsVpHGM8Cycaa-aBbqqRZdiepeUttYZzogiaS8HgWFwcQwRme9mYbJOBet_VcwYbTB-8_wAyd-kS7UDat6XggYIuY.Tzl6-x2F39v_DjLRKkOBafZcvUg.png','C\'est un aveugle qui rentre dans un bar, qui rentre dans une chaise, qui rentre dans une table,..', 'Le comble de Windows, c’est que pour l’arrêter, il faut cliquer sur démarrer x)', 'C\'est un type qui rentre dans un bar et qui s\'exclame "Salut c\'est moi !", tout le monde se retourne, c\'était pas lui...', 'Que prend un éléphant dans un bar ? De la place...', 'Un zoophile prend son élan avant de rentrer dans un bar :D !', 'Pourquoi un aveugle vous tutoi ? Car il ne vous voit pas.....', 'C\'est une requête SQL qui rentre dans un bar et qui s\'adresse à deux tables : Puis-je vous joindre ?','Combien de développeurs faut-il pour remplacer une ampoule grillée ? Aucun, c\'est un problème Hardware.','4h du matin un homme rentre chez lui mort bourré. Pour ne pas se faire prendre par sa femme il decide de se faire un jus de citron. Le lendemain matin sa femme lui crie dessus. "Tu as encore bus comme un trou hier" L\'homme: "Mais non" La femme: "A ouais et le cannari dans le presse citron il s\'est suicider"', 'Il ne faut jamais croire les girafes, c\'est un cou monté.', 'Quelle est la seule fonctionnalité qui n\'as jamais planté sur Windows ? Le BSOD', 'Windows n\'aime pas quel l\'on appel un dossier con, car c\'est le synonyme de son créateur (Gaston Portail)', 'Pourquoi personne n\'aime ISS? Car il était utilisé par les NAZIS', 'Sous Mac il n\'y a qu\'un virus : MacOSX', 'Le meilleur entreprise de système d\'exploitation ? Apple : Ils exploitent ton argent', 'Windows est un OS. Il est dur, n\'as pas de goût et on veut l\'enterrer']) #Source Bukkit.fr | https://www.bukkit.fr/topic/21638-recensement-de-blagues/
+    elif cmd("joke"): ##Joke
+        joke = random.choice(jokes)
         await client.send_typing(message.channel)
         msg = await client.send_message(message.channel, message.author.mention + " " + joke)
 
-    elif message.content.startswith(prefix + "ethylotest"): ##ALCHOL
-        resultat = random.choice([" 🚔 😵 Vous avez trop bu !", " 🚔 🚙 Vous pouvez circuler.", " 🚔 Où ais-je mon ethylotest de !@#12è@56"])
+    elif cmd("ethylotest"):
+        resultat = random.choice(policier)
         await client.send_typing(message.channel)
         msg = await client.send_message(message.channel, message.author.mention + resultat)
 
-    elif message.content.startswith(prefix + "clock canada"): ##time
+    elif cmd('randomcat'): ##Cat
+        r = requests.get('http://random.cat/meow.php')
+        await client.send_message(message.channel, message.author.mention + " " + r.json()['file'])
+    elif cmd('pokemon'): ##Pokemon
         await client.send_typing(message.channel)
-        now = time.localtime(time.time())
-        Heure = time.strftime('%H')
-        Heure = int(Heure)
-        Heure -= 1
-        Heure = str(Heure)
-        print(Heure)
-        msg = await client.send_message(message.channel, message.author.mention + "🇨🇦 🕓 : Il est actuellement : " + str(Heure) + ":" + time.strftime("%M", now))
-
-    elif message.content.startswith(prefix + "clock france"): ##time
-        await client.send_typing(message.channel)
-        now = time.localtime(time.time())
-        Heure = time.strftime('%H')
-        Heure = int(Heure)
-        Heure += 5
-        Heure = str(Heure)
-        print(Heure)
-        msg = await client.send_message(message.channel, message.author.mention + ":flag_fr: 🕓 : Il est actuellement : " + str(Heure) + ":" + time.strftime("%M", now))
-
-    elif message.content.startswith(prefix + "clock suisse"): ##time
-        await client.send_typing(message.channel)
-        now = time.localtime(time.time())
-        Heure = time.strftime('%H')
-        Heure = int(Heure)
-        Heure += 5
-        Heure = str(Heure)
-        print(Heure)
-        msg = await client.send_message(message.channel, message.author.mention + ":flag_ch: 🕓 : Il est actuellement : " + str(Heure) + ":" + time.strftime("%M", now))
-
-	
-    elif message.content.startswith(prefix + "clock"): ##clock error
-        msg = await client.send_message(message.channel, message.author.mention + "❌ __**[Erreur]**__ Usage: .clock france/canada/suisse")
-
-    elif message.content.startswith(prefix + "info"): ##info
-        msg = await client.send_message(message.channel, message.author.mention + "**TuxBot INFO** \n⛪ **Développeur** : Outout \n**📰 Site du dev'** : https://outout.tech/\n⚙ **Version** : 2" " \n 🖥 Host : **RaspberryPi 3 Type B**.\n 🔧 Api : **discord.py**\n ⌨ Langage : **Python**\n 📪 Idées ? Envoyez moi un mail à **outout@linuxmail.org** !")
-
-    elif message.content.startswith(prefix + "ytdiscover"): ##chaines yt
-        chaineyt = random.choice(['KickSama, dessins annimés : https://www.youtube.com/user/TheKickGuy', 'U=RI, videos sur l\'électricité | Lien : https://www.youtube.com/channel/UCVqx3vXNghSqUcVg2nmegYA', 'Outout, chaine de merde et peu alimenté du créateur du bot | Lien : https://www.youtube.com/channel/UC2XpYyT5X5tq9UQpXdc1JaQ', 'SuperJDay64, LP sur des jeux de type mario | Lien : https://www.youtube.com/channel/UCjkQgODdmhR9I2TatJZtGSQ/about', 'Monsieur Plouf, critiques de jeux AAA | Lien : https://www.youtube.com/channel/UCrt_PUTF9LdJyuDfXweHwuQ', 'MaxEstLa, vidéos réaction sur d\'autres chaines (c\'est presque du clash :D ) | Lien : https://www.youtube.com/channel/UCJFGk2A34R-99RIVDK2Hlwg', 'BastienLePirate, astuces youtube, vidéos sur des ytubers, ...| Lien : https://www.youtube.com/channel/UCJFGk2A34R-99RIVDK2Hlwg', 'Blender Foundation, animations libre de droits réalisé en utilisant blender | Lien : https://www.youtube.com/channel/UCSMOQeBJ2RAnuFungnQOxLg', 'Met-Hardware, chaine youtube sur l\'hardware et des let\'s play ! Lien : https://www.youtube.com/channel/UC7rse81OttysA1m1yn_f-OA', 'Les teachers du net, tutoriels | Lien : https://www.youtube.com/user/hounwanou1993','5secondfilms (Anglais), des courts-métrage | Lien : https://www.youtube.com/user/5secondfilms','TomSka (Anglais), des courts-métrages | Lien : https://www.youtube.com/user/TomSka','Trash, des Tops | Lien : https://www.youtube.com/channel/UCfGfdZuYifBYb1fmZcL1JBQ','ElectronikHeart, l\'informatique sous un angle différent | Lien : https://www.youtube.com/user/ElectronikHeart','Blender Foundation, des court-métrages réalisés avec Blender | Lien : https://www.youtube.com/channel/UCSMOQeBJ2RAnuFungnQOxLg','Caljbeut, politique, etc... en dessins | Lien : https://www.youtube.com/channel/UCNM-UkIP1BL5jv9ZrN5JMCA','SetSolution, des concepts d\'Iphones, etc... | Lien : https://www.youtube.com/channel/UCAXlQL_BcggjH6MpMSekjYg'])
-        await client.send_typing(message.channel)
-        msg = await client.send_message(message.channel, message.author.mention + "🖥 [Youtube Discover] - Je peux te conseiller cette chaine youtube : " + chaineyt)
-
-    elif message.content.startswith(prefix + "yt"): ##yt error
-        msg = await client.send_message(message.channel, message.author.mention + "❌ __**[Erreur]**__ Commandes disponibles: 👉 .yt discover : Découvrir des chaînes youtubes !")
-
-    elif message.content.startswith(prefix + 'phone send 3360 EX'): ##Phone
-        reponse = random.choice(['oui','non','oui','non'])
-        msg = await client.send_message(message.author, message.author.mention + 'ℹ Vous avez un nouveau message !\nLe 3360 (Maintenant): Votre Ex vous aime toujours ? La réponse est ' + str(reponse))
-
-    elif message.content.startswith(prefix + 'phone send 3360 DAESH'): ##Phone
-        reponse = random.choice(['oui','non','oui','non'])
-        msg = await client.send_message(message.author, message.author.mention + 'ℹ Vous avez un nouveau message !\nLe 3360 (Maintenant): Allez vous être tué(e) lors d\'un attentat ? La réponse est ' + str(reponse))
-
-    elif message.content.startswith(prefix + 'phone send 3360 BOMB'): ##Phone
-        reponse = random.choice(['oui','non','oui','non'])
-        msg = await client.send_message(message.author, message.author.mention + 'ℹ Vous avez un nouveau message !\nLe 3360 (Maintenant): Y\'a t-il une bombe allemande sous votre maison? La réponse est ' + str(reponse))
-
-    elif message.content.startswith(prefix + 'phone send 3360 GUERRE'): ##Phone
-        reponse = random.choice(['oui','non','oui','non'])
-        msg = await client.send_message(message.author, message.author.mention + 'ℹ Vous avez un nouveau message !\nLe 3360 (Maintenant): Votre enfant va t-il se faire tuer lors de la 3eme guerre mondiale? La réponse est ' + str(reponse))
-
-    elif message.content.startswith(prefix + 'phone send 666'): ##Phone
-        msg = await client.send_message(message.author, message.author.mention + 'ℹ Vous avez un nouveau message !\nLe 666 (Maintenant): 😡 Ce sera fait ! Je cherche mon fusil !')
-
-    elif message.content.startswith(prefix + 'phone send 3360 BESTOS'): ##Phone
-        msg = await client.send_message(message.author, message.author.mention + 'ℹ Vous avez un nouveau message !\nLe 3360 (Maintenant): Les Systèmes GNU/Linux sont évidement les meilleurs !')
-
-    elif message.content.startswith(prefix + 'phone send 2512'): ##Phone
-        msg = await client.send_message(message.author, message.author.mention + 'ℹ Vous avez un nouveau message !\nLe 2512 (Maintenant): HoHoHo ! J\'ai bien reçu ta lettre ! ')
-
-    elif message.content.startswith(prefix + 'phone list'): ##Phone
-        msg = await client.send_message(message.author, message.author.mention + '📱 📒 Liste des numéros\nPour envoyer un message à un de ces numéros; .phone send Numéro Message\n \n👤 3360 | Votre ex vous aime t-il toujours ? Envoyez EX au 3360 !\n👤 3360 | Allez vous être tué lors d\'un attentat ? Envoyez DAESH au 3360\n👤 3360 | Votre enfant va t-il se faire tuer lors de la 3eme guerre mondiale? Envoyez GUERRE au 3360\n👤 3360 | Y\'a t-il une bombe allemande sous votre maison? Envoyez BOMBE au 3360\n \n👤 2512 | Envoyez votre liste au père noël !\n👤 666 | Envoyer un message au **DIABLE** ! Pour tuer votre voisin, etc...\👤 3360 | Quel est le meilleur système d\'exploitation ? Envoie BESTOS au 3360 !')
-
-    elif message.content.startswith(prefix + 'phone help'): ##Phone
-        await client.send_message(message.author, message.author.mention + 'TuxBot - 📱 Commandes .phone\nℹ Liste des commandes : \n👉 .phone list : affiche les numéros existants.\n👉 .phone send <Numéro> <Message>, envoie un message à un numéro.\n👉 .phone help, Affiche l\'aide')
-
-    elif message.content.startswith(prefix + 'phone'): ##Phone
-        await client.send_message(message.channel, message.author.mention + '❌ __**[Erreur]**__ Une erreur est survenue. Essayez .phone help')
-
-    elif(message.content.startswith(prefix + 'pokemon')): ##COMBAT
-        await client.send_typing(message.channel)
-        poke1 = random.choice(['Tux','Ratifeu','Squirtle','Ninetales','Bulbizarre','Carabaffe','Carapuce','Roucarnage','Nidorino','Akwakwak','Miaouss','Ratifeu','Squirtle','Ninetales','Bulbizarre','Carabaffe','Carapuce','Roucarnage','Nidorino','Akwakwak','Miaouss','outout14'])
-        poke2 = random.choice(['Psyko','Arcanin','Boustiflor','Fantominus','Voltorbe','Excelangue','Poissirène','Magicarpe','Électhor','Joliflor','Cotovol','Mentali'])
-        if(poke1 == "Tux"):
-            win = "Tux"
-        else:
-            win = random.choice([str(poke1),str(poke2)])
+        poke1 = random.choice(pokemon)
+        poke2 = random.choice(pokemon)
+        win = random.choice([str(poke1),str(poke2)])
         msg1 = await client.send_message(message.channel, '**Le combat Commence !**')
         msg2 = await client.send_message(message.channel, '📢 **Présentateur** : Les combatants sont : ' + str(poke1) + ' Contre ' + str(poke2))
         msg3 = await client.send_message(message.channel, '*Narateur : Le combat se déroule...*')
         await client.send_typing(message.channel)
-        await asyncio.sleep(10)
+        await asyncio.sleep(5)
         msg4 = await client.send_message(message.channel, '**📢 Présentateur** : Le gagnant est..... ')
         await client.send_typing(message.channel)
         await asyncio.sleep(1)
         msg5 = await client.send_message(message.channel, '**📢 Présentateur** : **' + str(win) + '**')
 
 
-    elif message.content.startswith(prefix + 'help'): ##HELP
-        await client.send_typing(message.channel)
-        await client.send_message(message.channel,'TuxBot \nℹ Liste des commandes : \n \n📎 Diverses\n👉 .help, Afficher l\'aide.\n👉 .info, Affiche la version et d\'autres informations à propos de TuxBot\n👉 .phone help, Affiche l\'aide pour le téléphone\n👉 .github, Lien vers le github de TuxBot pour voir son code source \n \n🛠 Utilitaires\n👉 .afk, Signaler son absence. \n👉 .back, Signaler son retour. \n👉 .clock france/canada/suisse, Affiche l\'heure. \n👉 .ytdiscover , Découvrir des chaînes youtubes ! \n👉 .search, faire une recherche sur le WorldWideWeb \n \n😂  Funs\n👉 .joke, Affiche une blague aléatoirement.\n👉 .ethylotest, Avez vous bu ?\n 👉 .coin, Lance une pièce.\n 👉 .pokemon, Lance un combate contre deux pokémons *(aléatoirement)*.\n \n📱Téléphone (Visibles dans .phone help)\n👉 .phone list : affiche les numéros existants.\n👉 .phone send <Numéro> <Message>, envoie un message à un numéro.\n👉 .phone help, Affiche l\'aide\n \n')
-        
-        if str(role[1]) in roles: ##IF ADMINISTRATOR
-            await client.send_message(message.channel, ':eye: Administration (requiert grade ADMIN)\n👉 .say(_votre message_) (avec les paranthèses) : Fait le bot parler \n👉 .clear _nombre_ : Vide _nombre_ de messages \n👉 .debug ping : Test si le bot est en ligne et à la permission d\'écrire. \n👉 .changegame(_votre texte_) (avec les paranthèses): Change le jeu joué par TuxBot ')
 
-    elif message.content.startswith(prefix + 'github'): ##Link to github
+###########################################
+#                                         #
+#                CLOCK                    #
+#                                         #
+###########################################
+    elif cmd('clock'):
+        args = message.content.split("clock ")
+        args = [element.upper() for element in args]
+        args_ = [element.lower() for element in args]
+        then = datetime.datetime.now(pytz.utc)
+        form = '%H heures %M'
+        try:
+            argument = args[1]
+            if args[1] == "MONTREAL":
+                utc = then.astimezone(pytz.timezone('America/Montreal'))
+                site = "http://ville.montreal.qc.ca/"
+                img = "https://upload.wikimedia.org/wikipedia/commons/e/e0/Rentier_fws_1.jpg"
+                country = "au Canada, Québec"
+                description = "Montréal est la deuxième ville la plus peuplée du Canada. Elle se situe dans la région du Québec"
+            elif args[1] == "VANCOUVER":
+                utc = then.astimezone(pytz.timezone('America/Vancouver'))
+                site = "http://vancouver.ca/"
+                img = "https://upload.wikimedia.org/wikipedia/commons/f/fe/Dock_Vancouver.JPG"
+                country = "au Canada"
+                description = "Vancouver, officiellement City of Vancouver, est une cité portuaire au Canada"
+            elif args[1] == "NEW-YORK" or args[1] == "N-Y":
+                utc = then.astimezone(pytz.timezone('America/New_York'))
+                site = "http://www1.nyc.gov/"
+                img = "https://upload.wikimedia.org/wikipedia/commons/e/e3/NewYork_LibertyStatue.jpg"
+                country = "aux U.S.A."
+                description = "New York, est la plus grande ville des États-Unis en termes d'habitants et l'une des plus importantes du continent américain. "
+            elif args[1] == "LOSANGELES" or args[1] == "L-A" or args[1] == "LA" or args[1] == "LACITY":
+                utc = then.astimezone(pytz.timezone('America/Los_Angeles'))
+                site = "https://www.lacity.org/"
+                img = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/LA_Skyline_Mountains2.jpg/800px-LA_Skyline_Mountains2.jpg"
+                country = "aux U.S.A."
+                description = "Los Angeles est la deuxième ville la plus peuplée des États-Unis après New York. Elle est située dans le sud de l'État de Californie, sur la côte pacifique."
+            elif args[1] == "PARIS":
+                utc = then.astimezone(pytz.timezone('Europe/Paris'))
+                site = "http://www.paris.fr/"
+                img = "https://upload.wikimedia.org/wikipedia/commons/a/af/Tour_eiffel_at_sunrise_from_the_trocadero.jpg"
+                country = "en France"
+                description = "Paris est la capitale de la France. Elle se situe au cœur d'un vaste bassin sédimentaire aux sols fertiles et au climat tempéré, le bassin parisien."
+            elif args[1] == "BERLIN":
+                utc = then.astimezone(pytz.timezone('Europe/Berlin'))
+                site = "http://www.berlin.de/"
+                img = "https://upload.wikimedia.org/wikipedia/commons/9/91/Eduard_Gaertner_Schlossfreiheit.jpg"
+                country = "en Allemagne"
+                description = "Berlin est la capitale et la plus grande ville d'Allemagne. Située dans le nord-est du pays, elle compte environ 3,5 millions d'habitants. "
+            elif args[1] == "BERN" or args[1] == "ZURICH" or args[1] == "BERNE":
+                utc = then.astimezone(pytz.timezone('Europe/Zurich'))
+                site = "http://www.berne.ch/"
+                img = "https://upload.wikimedia.org/wikipedia/commons/d/db/Justitia_Statue_02.jpg"
+                country = "en Suisse"
+                description = "Berne est la cinquième plus grande ville de Suisse et la capitale du canton homonyme. Depuis 1848, Berne est la « ville fédérale »."
+            elif args[1] == "TOKYO":
+                utc = then.astimezone(pytz.timezone('Asia/Tokyo'))
+                site = "http://www.gotokyo.org/"
+                img = "https://upload.wikimedia.org/wikipedia/commons/3/37/TaroTokyo20110213-TokyoTower-01.jpg"
+                country = "au Japon"
+                description = "Tokyo, anciennement Edo, officiellement la préfecture métropolitaine de Tokyo, est la capitale du Japon."
+            elif args[1] == "MOSCOU":
+                utc = then.astimezone(pytz.timezone('Europe/Moscow'))
+                site = "https://www.mos.ru/"
+                img = "https://upload.wikimedia.org/wikipedia/commons/f/f7/Andreyevsky_Zal.jpg"
+                country = "en Russie"
+                description = "Moscou est la capitale de la Fédération de Russie et la plus grande ville d'Europe. Moscou est situé sur la rivière Moskova. "
+            try:
+                if args[1] == "LIST":
+                    await client.send_typing(message.channel)
+                    text = open('msg/clocks.md').read()
+                    em = discord.Embed(title='Liste des Horloges', description=text.format(prefix), colour=0xEEEEEE)
+                    await client.send_message(message.channel, embed=em)
+                else:
+                    tt = utc.strftime(form)
+                    em = discord.Embed(title='Heure à ' + args_[1].title(), description="A [{}]({}) {}, Il est **{}** ! \n {} \n _source des images et du texte : [Wikimedia foundation](http://commons.wikimedia.org/)_".format(str(args[1]), site, str(country), str(tt), str(description)), colour=0xEEEEEE)
+                    em.set_thumbnail(url = img)
+                    await client.send_message(message.channel, embed=em)
+            except UnboundLocalError:
+                 await client.send_message(message.channel, message.author.mention + " **[ERREUR]** Ville inconnue, ``.clock list`` pour afficher les villes disponibles !")
+        except IndexError:
+            await client.send_message(message.channel, message.author.mention + " **[ERREUR]** Veuillez sélectionner une ville dans ``.clock list`` !")
+
+
+
+###########################################
+#                                         #
+#          HELP AND FIX COMMANDS          #
+#                                         #
+###########################################
+    elif cmd('help'): ##HELP
         await client.send_typing(message.channel)
-        await client.send_message(message.channel, message.author.mention + 'Oh c\'est sympa ! Tu veux aller voir mon code source sur Github ! :kissing_smiling_eyes: =>  https://github.com/outout14/tuxbot-bot')
+        text = open('msg/help.md').read()
+        em = discord.Embed(title='Liste des Commandes', description=text.format(prefix), colour=0x89C4F4)
+        await client.send_message(message.channel, embed=em)
+
+    elif cmd("info"): ##info
+        text = open('msg/info.md').read()
+        em = discord.Embed(title='Informations sur ' + client.user.name, description=text, colour=0x89C4F9)
+        await client.send_message(message.channel, embed=em)
+
+    elif cmd('search help'): ##Search
+        text = open('msg/search.md').read()
+        em = discord.Embed(title='Sites de recherche', description=text.format(prefix), colour=0x4ECDC4)
+        await client.send_message(message.channel, embed=em)
+
+    elif cmd('github'): ##Link to github
+        await client.send_typing(message.channel)
+        text = "How tu veux voir mon repos Github pour me disséquer ? Pas de soucis ! Je suis un Bot, je ne ressens pas la douleur !\n https://github.com/outout14/tuxbot-bot"
+        em = discord.Embed(title='Repos TuxBot-Bot', description=text, colour=0xE9D460)
+        em.set_author(name='Outout', icon_url="https://avatars0.githubusercontent.com/u/14958554?v=3&s=400")
+        await client.send_message(message.channel, embed=em)
+
+
+###########################################
+#                                         #
+#          AUTOMATICS FUNCTIONS           #
+#                                         #
+###########################################
+    if re.search(r'^(bonjour |salut |hello |bjr |slt |s\'lut)?([^ ]+ ){0,3}(qui s\'y conna(î|i)(t|s)|des gens|quelqu\'un|qqun|des personnes|du monde s\'y connait)[^\?]+\?$', message.content):
+        await client.send_message(message.channel, ":question: N'hésite pas à poser ta question directement " + message.author.mention + ", il n'est pas utile de demander si quelqu'un connait quelque chose avant.")
+
 client.run(token)
