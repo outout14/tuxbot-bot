@@ -1,5 +1,5 @@
 __author__ = "Maël — outout14"
-__licence__ = "Apache License 2.0"
+__licence__ = "WTFPL Licence 2.0"
 
 ###########################
 #   TuxBot Config file    #
@@ -8,15 +8,15 @@ __licence__ = "Apache License 2.0"
 
 ## TOKEN
 ## Insert your DiscordAPP Token here
-token = " "
+token = "TOKEN"
 
 ##PREFIX
 ##Default prefix .
-prefix = ":"
+prefix = "."
 
-##Authorized channel
-op_channel = "tuxbot-dev"
+##Authorized channels
+op_channel = ["tuxbot", "bot", "boat", "commandes", "commands"]
 
 ##Version information
 ## DONT TOUCH !
-version = " Release 4.0 "
+version = " Release 4.2 "

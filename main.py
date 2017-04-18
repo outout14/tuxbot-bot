@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Maël — outout"
-__licence__ = "Apache License 2.0"
+__licence__ = "WTFPL Licence 2.0"
 
 
 #################
