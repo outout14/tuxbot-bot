@@ -4,6 +4,8 @@
 -> {0}help : affiche l'aide
 -> {0}search help : affiche l'aide sur les commandes de recherche
 -> {0}clock list: affiche la liste des horloges des villes
+-> {0}ping : Ping le bot
+-> {0}github : Affiche le repos Github du Bot :heart: 
 
 **Commandes utilitaires**
 -> {0}afk : signaler son absence

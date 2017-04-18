@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 __author__ = "Maël — outout"
@@ -82,15 +82,18 @@ async def on_member_join(member):
     logger.log(logging.INFO, member.name + ' joined the server !')
     server = member.server
     prv = await client.start_private_message(member)
-    fmt = 'Bienvenue {0.mention} sur le suberbe serveur discord **' + member.server.name + '** ! Je te conseil de lire #regles pour commencer !'
+    welcome_msg = random.choice(wlcm_msgs)
+    if member.server.name == "Aide GNU/Linux-fr":
+        fmt = 'Bienvenue {0.mention} sur le suberbe serveur discord **' + member.server.name + '** ! Je te conseil de lire #regles pour commencer !'
+    else:
+        fmt = 'Bienvenue {0.mention} sur le discord **'+ member.server.name +'**, j\'espère que tu passeras un bon moment avec nous !' ##Multi-Server
     await client.send_message(prv, fmt.format(member))
-    await client.send_message(member.server.default_channel, '**Nous souhaitons la bienvenue à notre nouveau membre, ' + member.mention + ' sur le discord ' + member.server.name + ' ! **')
-
+    await client.send_message(member.server.default_channel, "**{0}**".format(welcome_msg.format(member)))
 @client.event
 async def on_member_remove(member):
+    adios_msg = random.choice(adios_msgs)
     logger.log(logging.INFO, member.name + ' left the server !')
-    await client.send_message(member.server.default_channel, "**" + member.name + ' nous a malheuresement quitté**, il a fait une grave erreur, nous le traquerons puis nous lui feront avaler le CD de Ubuntu !!! :smirk:')
-
+    await client.send_message(member.server.default_channel, "**{0}**".format(adios_msg.format(member)))
 ###########################################
 #                                         #
 #             DELETE MESSAGE              #
@@ -117,11 +120,11 @@ async def on_message(message):
 #              BLOCKING AND ...           #
 #                                         #
 ###########################################
-    roles = ["Admin", "ADMIN", "admin"]
+    roles = ["bot-commander", "admin", "Admin"]
 
     def cmd(cmd_name):
         if not message.channel.is_private and not message.author.bot:
-            if message.channel.name == op_channel:
+            if message.channel.name in op_channel:
                return message.content.startswith(prefix + cmd_name)
 
     def op_cmd(cmd_name):
@@ -131,16 +134,11 @@ async def on_message(message):
                 if str(role[0]) in roles or str(role[1]) in roles or str(role[2]) in roles or str(role[3]) in roles or str(role[4]) in roles:
                     return message.content.startswith(prefix + cmd_name)
             except IndexError:
-                logger.info(message.author.name + ' tried to execute an order without the necessary permissions. Message content : ' + message.content)
+                ##Essayons de ne rien afficher x)
+                variable_inutile_car_flemme = 0
 
     if message.channel.is_private and not message.author.bot:
         await client.send_message(message.channel, "Désolé mais mon papa m'a dit de ne pas parler par Message Privé, viens plutot sur un serveur discord !")
-
-    for say_cmd in commands:
-        if message.content.startswith(prefix + say_cmd) and not message.channel.name == op_channel and not message.channel.is_private:
-            await client.send_message(message.author, "Désolé mais tu ne peux m'utiliser que dans " + op_channel + " !")
-            await client.delete_message(message)
-
 ###########################################
 #                                         #
 #                ADMIN COMMANDS           #
