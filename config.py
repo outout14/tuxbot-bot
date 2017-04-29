@@ -8,15 +8,15 @@ __licence__ = "WTFPL Licence 2.0"
 
 ## TOKEN
 ## Insert your DiscordAPP Token here
-token = "TOKEN"
+token = " "
 
 ##PREFIX
 ##Default prefix .
 prefix = "."
 
-##Authorized channels
-op_channel = ["tuxbot", "bot", "boat", "commandes", "commands"]
+##Authorized channel
+op_channel = ["tuxbot-dev", "bot", "boat", "commandes"]
 
 ##Version information
 ## DONT TOUCH !
-version = " Release 4.2 "
+version = " Release 5.0 "

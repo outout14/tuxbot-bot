@@ -1,0 +1,7 @@
+discord.py
+asyncio
+beautifulsoup4
+bs4
+pytz
+requests
+wikipedia

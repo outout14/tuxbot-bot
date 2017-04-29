@@ -8,24 +8,8 @@ __licence__ = "WTFPL Licence 2.0"
 #################
 #   IMPORTS     #
 #################
-import discord ##Discord.py library
-import asyncio
-from config import * ##Configuration file
-from arrays import * ##arrays
-import random
-import time
-import sys
-import math
-import os
-import urllib
-from bs4 import *
-import urllib.request ##URL functions
-import re
-import logging
-import datetime ##For Time
-import pytz ##For time
-import requests
-import wikipedia
+from botassets import *
+from botassets.imports import *
 client = discord.Client()
 status = "dnd"
 wikipedia.set_lang("fr")
@@ -49,6 +33,26 @@ logger.info(' \n \n New TuxBot instance \n \n')
 #           OPEN GAME FILE NAME           #
 ###########################################
 game = open('msg/game.txt').read()
+
+#### SQL #####
+conn = sqlite3.connect('tuxbot.db') #Connexion SQL
+
+cursor = conn.cursor()
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS users(
+     id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
+     userid TEXT,
+     username TEXT,
+     usermention TEXT,
+     os TEXT,
+     config TEXT,
+     useravatar TEXT,
+     userbirth TEXT,
+     cidate TEXT,
+     pays TEXT
+)
+""")# Creation table Utilisateur si premiere fois
+conn.commit()
 
 
 ###########################################
@@ -82,16 +86,16 @@ async def on_member_join(member):
     logger.log(logging.INFO, member.name + ' joined the server !')
     server = member.server
     prv = await client.start_private_message(member)
-    welcome_msg = random.choice(wlcm_msgs)
+    welcome_msg = random.choice(arrays.wlcm_msgs)
     if member.server.name == "Aide GNU/Linux-fr":
-        fmt = 'Bienvenue {0.mention} sur le suberbe serveur discord **' + member.server.name + '** ! Je te conseil de lire #regles pour commencer !'
+        fmt = 'Bienvenue {0.mention} sur le suberbe serveur discord **' + member.server.name + '** ! Je te conseil de lire #regles pour commencer et te créer une carte d\'identité dans ``#bot`` grâce à la commande ``.ci-register`` et la personnaliser :smile: !'
     else:
         fmt = 'Bienvenue {0.mention} sur le discord **'+ member.server.name +'**, j\'espère que tu passeras un bon moment avec nous !' ##Multi-Server
     await client.send_message(prv, fmt.format(member))
     await client.send_message(member.server.default_channel, "**{0}**".format(welcome_msg.format(member)))
 @client.event
 async def on_member_remove(member):
-    adios_msg = random.choice(adios_msgs)
+    adios_msg = random.choice(arrays.adios_msgs)
     logger.log(logging.INFO, member.name + ' left the server !')
     await client.send_message(member.server.default_channel, "**{0}**".format(adios_msg.format(member)))
 ###########################################
@@ -113,79 +117,92 @@ async def on_message_delete(message):
 
 @client.event
 async def on_message(message):
-
 ###########################################
 #                                         #
 #             CUSTOMS FUNCTIONS           #
 #              BLOCKING AND ...           #
 #                                         #
 ###########################################
-    roles = ["bot-commander", "admin", "Admin"]
+    roles = ["bot-commander", "poney"]
 
     def cmd(cmd_name):
         if not message.channel.is_private and not message.author.bot:
-            if message.channel.name in op_channel:
-               return message.content.startswith(prefix + cmd_name)
+            return message.content.startswith(prefix + cmd_name)
 
-    def op_cmd(cmd_name):
-        if not message.channel.is_private and not message.author.bot:
-            role = message.author.roles
-            try:
-                if str(role[0]) in roles or str(role[1]) in roles or str(role[2]) in roles or str(role[3]) in roles or str(role[4]) in roles:
-                    return message.content.startswith(prefix + cmd_name)
-            except IndexError:
-                ##Essayons de ne rien afficher x)
-                variable_inutile_car_flemme = 0
+    def authadmin():
+        role = message.author.roles
+        print("A")
+        try:
+            if str(role[0]) in roles or str(role[1]) in roles or str(role[2]) in roles or str(role[3]) in roles or str(role[4]) in roles:
+                return True
+            else:
+                return False
+        except IndexError:
+            return False
 
     if message.channel.is_private and not message.author.bot:
         await client.send_message(message.channel, "Désolé mais mon papa m'a dit de ne pas parler par Message Privé, viens plutot sur un serveur discord !")
+
+
 ###########################################
 #                                         #
 #                ADMIN COMMANDS           #
 #                                         #
 ###########################################
 
-    if op_cmd("sendlogs"):
-        wait = await client.send_message(message.channel, message.author.mention + " Le contenue du fichier log est entrain d'être envoyé... Veuillez patienter, cela peut prendre du temps !")
-        await client.send_file(message.author, fp="logs/activity.log", filename="activity.log", content="Voci mon fichier ``activity.log`` comme demandé !", tts=False)
-        await client.edit_message(wait, message.author.mention + " C'est bon vous venez de recevoir par message privé mon fichier de logs")
+    if cmd("sendlogs"):
+        if authadmin:
+            wait = await client.send_message(message.channel, message.author.mention + " Le contenue du fichier log est entrain d'être envoyé... Veuillez patienter, cela peut prendre du temps !")
+            await client.send_file(message.author, fp="logs/activity.log", filename="activity.log", content="Voci mon fichier ``activity.log`` comme demandé !", tts=False)
+            await client.edit_message(wait, message.author.mention + " C'est bon vous venez de recevoir par message privé mon fichier de logs")
+        else:
+            await client.send_message(message.channel, "[**ERREUR**] Vous n'avez pas la permission d'executer cette commande")
 
-    elif op_cmd("say"): #Control
-        args = message.content.split("say ")
-        try:
-            await client.send_message(message.channel, args[1])
-            logger.info(message.author.name + ' ordered TuxBot to say : ' + args[1])
-            await client.delete_message(message)
-        except IndexError:
-            await client.send_message(message.author, "**[ERREUR]** Merci de fournir le paramètre du message à dire, je ne suis pas dans ta tête !")
-            await client.delete_message(message)
+    elif cmd("say"): #Control
+        if authadmin():
+            args = message.content.split("say ")
+            try:
+                await client.send_message(message.channel, args[1])
+                logger.info(message.author.name + ' ordered TuxBot to say : ' + args[1])
+                await client.delete_message(message)
+            except IndexError:
+                await client.send_message(message.author, "**[ERREUR]** Merci de fournir le paramètre du message à dire, je ne suis pas dans ta tête !")
+                await client.delete_message(message)
+        else:
+            await client.send_message(message.channel, message.author.mention + "[**ERREUR**] Vous n'avez pas la permission d'executer cette commande")
 
-    elif op_cmd("clear"):
-        try:
-            args = message.content.split("clear ")
-            argument = int(args[1])
-            argument = argument+1
-            logger.info(message.author.name + ' ordered TuxBot to remove ' + args[1] + ' messages')
-            deleted = await client.purge_from(message.channel, limit=argument)
-            await client.send_message(message.author, args[1] + " messages ont bien été supprimés")
-        except IndexError:
-            await client.send_message(message.author, "**[ERREUR]** Merci de fournir le paramètre du nombre de message à supprimer, je ne suis pas dans ta tête !")
-            await client.delete_message(message)
+    elif cmd("clear"):
+        if authadmin:
+            try:
+                args = message.content.split("clear ")
+                argument = int(args[1])
+                argument = argument+1
+                logger.info(message.author.name + ' ordered TuxBot to remove ' + args[1] + ' messages')
+                deleted = await client.purge_from(message.channel, limit=argument)
+                await client.send_message(message.author, args[1] + " messages ont bien été supprimés")
+            except IndexError:
+                await client.send_message(message.author, "**[ERREUR]** Merci de fournir le paramètre du nombre de message à supprimer, je ne suis pas dans ta tête !")
+                await client.delete_message(message)
+        else:
+            await client.send_message(message.channel, message.author.mention + "[**ERREUR**] Vous n'avez pas la permission d'executer cette commande")
 
-    elif op_cmd("changegame"):
-        args = message.content.split("changegame ")
-        try:
-            ngame = open('msg/game.txt','w')
-            ngame.write(args[1])
-            ngame.close()
-            rgame = open('msg/game.txt').read()
-            await client.change_presence(game=discord.Game(name=rgame), status=discord.Status(status), afk=False)
-            await client.send_message(message.author, "Mon jeu joué à bien été changé en : " + rgame)
-            await client.delete_message(message)
-            logger.info(message.author.name + ' changed the game played from tuxbot to : ' + args[1])
-        except IndexError:
-            await client.send_message(message.author, "**[ERREUR]** Merci de fournir le paramètre du jeu que je dois jouer, je ne suis pas dans ta tête !")
-            await client.delete_message(message)
+    elif cmd("changegame"):
+        if authadmin:
+            args = message.content.split("changegame ")
+            try:
+                ngame = open('msg/game.txt','w')
+                ngame.write(args[1])
+                ngame.close()
+                rgame = open('msg/game.txt').read()
+                await client.change_presence(game=discord.Game(name=rgame), status=discord.Status(status), afk=False)
+                await client.send_message(message.author, "Mon jeu joué à bien été changé en : " + rgame)
+                await client.delete_message(message)
+                logger.info(message.author.name + ' changed the game played from tuxbot to : ' + args[1])
+            except IndexError:
+                await client.send_message(message.author, "**[ERREUR]** Merci de fournir le paramètre du jeu que je dois jouer, je ne suis pas dans ta tête !")
+                await client.delete_message(message)
+        else:
+            await client.send_message(message.channel, message.author.mention + "[**ERREUR**] Vous n'avez pas la permission d'executer cette commande")
 
 ###########################################
 #                                         #
@@ -238,13 +255,13 @@ async def on_message(message):
             await client.delete_message(wait)
             final = await client.send_message(message.channel, embed=em)
 
-            for emoji in array_emoji:
+            for emoji in arrays.array_emoji:
                await client.add_reaction(final, emoji)
 
             res = await client.wait_for_reaction(message=final, user=message.author)
 
-            for emoji in array_emoji:
-                num_emoji = array_emoji.index(emoji)
+            for emoji in arrays.array_emoji:
+                num_emoji = arrays.array_emoji.index(emoji)
                 if res.reaction.emoji == emoji:
                     args_ = results[num_emoji]
 
@@ -272,7 +289,7 @@ async def on_message(message):
 
     elif cmd("yt"):
         await client.send_typing(message.channel)
-        chaineyt = random.choice(youtube)
+        chaineyt = random.choice(arrays.youtube)
         ytname = chaineyt.split(",")
         yturl = chaineyt.split(": ")
         ytname = ytname[0]
@@ -325,22 +342,23 @@ async def on_message(message):
         msg = await client.send_message(message.channel, "La piece est retombé sur " + piece)
 
     elif cmd("joke"): ##Joke
-        joke = random.choice(jokes)
+        joke = random.choice(arrays.jokes)
         await client.send_typing(message.channel)
         msg = await client.send_message(message.channel, message.author.mention + " " + joke)
 
     elif cmd("ethylotest"):
-        resultat = random.choice(policier)
+        resultat = random.choice(arrays.policier)
         await client.send_typing(message.channel)
         msg = await client.send_message(message.channel, message.author.mention + resultat)
 
     elif cmd('randomcat'): ##Cat
         r = requests.get('http://random.cat/meow.php')
         await client.send_message(message.channel, message.author.mention + " " + r.json()['file'])
+
     elif cmd('pokemon'): ##Pokemon
         await client.send_typing(message.channel)
-        poke1 = random.choice(pokemon)
-        poke2 = random.choice(pokemon)
+        poke1 = random.choice(arrays.pokemon)
+        poke2 = random.choice(arrays.pokemon)
         win = random.choice([str(poke1),str(poke2)])
         msg1 = await client.send_message(message.channel, '**Le combat Commence !**')
         msg2 = await client.send_message(message.channel, '📢 **Présentateur** : Les combatants sont : ' + str(poke1) + ' Contre ' + str(poke2))
@@ -352,7 +370,24 @@ async def on_message(message):
         await asyncio.sleep(1)
         msg5 = await client.send_message(message.channel, '**📢 Présentateur** : **' + str(win) + '**')
 
+    if cmd("servers-list"):
+        nbmr = 0
+        msg = ""
+        for serveur in list(client.servers):
+            nbmr = nbmr + 1
+            msg = msg + "=> **{}** \n".format(serveur.name)
+        msg = msg + "{} se trouve sur **{} serveur(s)** au total !".format(client.user.name, nbmr)
+        em = discord.Embed(title='Liste des serveurs où se trouve ' + client.user.name, description=msg, colour=0x36D7B7)
+        em.set_author(name=client.user.name, icon_url=client.user.avatar_url)
+        await client.send_message(message.channel, embed=em)
 
+    elif cmd("count-members"):
+        nbmr = 0
+        for name in list(client.get_all_members()):
+            nbmr = nbmr + 1
+        msg = "Il y'a **{} membres** sur le serveur Discord **{}**".format(nbmr, message.server.name)
+        em = discord.Embed(title='Compteur de membres', description=msg, colour=0x9A12B3)
+        await client.send_message(message.channel, embed=em)
 
 ###########################################
 #                                         #
@@ -437,6 +472,84 @@ async def on_message(message):
         except IndexError:
             await client.send_message(message.channel, message.author.mention + " **[ERREUR]** Veuillez sélectionner une ville dans ``.clock list`` !")
 
+###################
+# IDENTIY SYSTEM  #
+###################
+
+    elif cmd("ci-register"):
+        cursor.execute("""INSERT INTO users(userid, username, usermention, useravatar, userbirth, cidate) VALUES(?, ?, ?, ?, ?, ?)""", (message.author.id, message.author.name, message.author.mention, message.author.avatar_url, message.author.created_at, message.timestamp))
+        conn.commit()
+        await client.send_message(message.channel, message.author.mention + "> **Votre carte d'intentité à été enregistrée !** Pour plus d'informations sur le système de carte d'indentité, tapez la commande ``{}ci-info`` !".format(prefix))
+
+    elif cmd("ci-setos"):
+        try:
+            args = message.content.split("ci-setos ")
+            cursor.execute("""UPDATE users SET os = ? WHERE usermention = ?""", (args[1], message.author.mention))
+            conn.commit()
+            await client.send_message(message.channel, message.author.mention + " l'information à bien été modifié sur votre carte d'identité !")
+        except IndexError:
+            await client.send_message(message.channel, message.author.mention + " [**ERREUR**] : Veuillez argumenter la commande !")
+
+    elif cmd("ci-setconf"):
+        try:
+            args = message.content.split("ci-setconf ")
+            cursor.execute("""UPDATE users SET config = ? WHERE usermention = ?""", (args[1], message.author.mention))
+            conn.commit()
+            await client.send_message(message.channel, message.author.mention + " l'information à bien été modifié sur votre carte d'identité !")
+        except IndexError:
+            await client.send_message(message.channel, message.author.mention + " [**ERREUR**] : Veuillez argumenter la commande !")
+
+    elif cmd("ci-setnation"):
+        try:
+            args = message.content.split("ci-setnation ")
+            cursor.execute("""UPDATE users SET pays = ? WHERE usermention = ?""", (args[1], message.author.mention))
+            conn.commit()
+            await client.send_message(message.channel, message.author.mention + " l'information à bien été modifié sur votre carte d'identité !")
+        except IndexError:
+            await client.send_message(message.channel, message.author.mention + " [**ERREUR**] : Veuillez argumenter la commande !")
+
+    elif cmd("ci-info"):
+        cinfomd = open('msg/ci-info.md').read()
+        em = discord.Embed(title='Aide sur la carte d\'identité', description=cinfomd.format(prefix), colour=0xDEADBF)
+        await client.send_message(message.channel, embed=em)
+
+    elif cmd("ci"):
+        try:
+            args = message.content.split("ci ")
+            cursor.execute("""SELECT userid, username, os, usermention, useravatar, userbirth, cidate, config, pays FROM users WHERE usermention=?""", (args[1],))
+            result = cursor.fetchone()
+            if not result:
+                await client.send_message(message.channel, message.author.mention + "> Désolé mais {} n'a pas fait enregistrer sa Carte d'indentité".format(args[1]))
+            else:
+                userid = result[0]
+                username = result[1]
+                if not result[2]:
+                    os = "Non renseigné"
+                else:
+                    os = result[2]
+
+                if not result[7]:
+                    config = "Non renseigné"
+                else:
+                    config = result[7]
+
+                if not result[8]:
+                    pays = "Non renseigné"
+                else:
+                    pays = result[8]
+
+                useravatar = result[4]
+                userbirth = result[5]
+                cidate = result[6]
+                userbirth = userbirth.split(" ")
+                cidate = cidate.split(" ")
+
+                em_content = open('msg/identity.md').read()
+                em = discord.Embed(title='Carte d\'Identité de '+ username, description=em_content.format(userid, username, os, useravatar, userbirth[0], cidate[0], config, pays), colour=0xDEADBF)
+                em.set_author(name=username, icon_url=useravatar)
+                await client.send_message(message.channel, embed=em)
+        except IndexError:
+            await client.send_message(message.channel, message.author.mention + " [**ERREUR**] : Veuillez argumenter la commande !")
 
 
 ###########################################
@@ -476,4 +589,7 @@ async def on_message(message):
     if re.search(r'^(bonjour |salut |hello |bjr |slt |s\'lut)?([^ ]+ ){0,3}(qui s\'y conna(î|i)(t|s)|des gens|quelqu\'un|qqun|des personnes|du monde s\'y connait)[^\?]+\?$', message.content):
         await client.send_message(message.channel, ":question: N'hésite pas à poser ta question directement " + message.author.mention + ", il n'est pas utile de demander si quelqu'un connait quelque chose avant.")
 
+    if message.content == message.content.upper() and not message.author.bot:
+        if len(message.content) > 5:
+            await client.send_message(message.channel, message.author.mention + " pas que des capitales dans ton message quand même !")
 client.run(token)

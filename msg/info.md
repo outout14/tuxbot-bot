@@ -6,7 +6,7 @@
 └> Api : [discord.py](https://github.com/Rapptz/discord.py)
 
 ==> Serveur de Test:
-└> Ordinateur de Outout sous [Kali Linux 2](https://wwww.kali.org/)
+└> Ordinateur de Outout sous [Ubuntu 16.04 LTS](http://releases.ubuntu.com/16.04/)
 └> Version de Python : [3.5.2](http://www.python.org/)
 
 ==> Serveur de Prod :
