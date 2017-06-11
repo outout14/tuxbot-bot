@@ -89,9 +89,6 @@ async def on_message(message):
     if re.match(r'^<@(\w+)>$', message.content):
         await bot.send_message(message.channel, message.author.mention + " > Tu voulais lui dire quoi ? Tu le mentionne sans message !")
 
-    if re.match(r"[A-Z]", message.content) and not message.author.bot and len(message.content) > 5:
-        await bot.send_message(message.channel, message.author.mention + " > Evite les messages en majuscule, ce n'est pas la peine de crier !")
-
     await bot.process_commands(message)
 
 @bot.command(pass_context=True, hidden=True)
