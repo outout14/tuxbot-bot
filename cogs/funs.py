@@ -90,10 +90,13 @@ class Funs:
         poke1 = jk[random.randint(1, 150)]
         poke2 = jk[random.randint(1, 150)]
 
-        if poke1['MaxHP'] > poke2['MaxHP']:
+        try:
+            if poke1['MaxHP'] > poke2['MaxHP']:
+                winer = poke1
+            else:
+                winer = poke2
+        except:
             winer = poke1
-        else:
-            winer = poke2
 
         await self.bot.say(":flag_white: **Le combat commence !**")
         await asyncio.sleep(1)

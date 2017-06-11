@@ -113,7 +113,7 @@ class Search:
                 await self.bot.say(":open_mouth: Une **erreur interne** est survenue, si cela ce reproduit contactez votre administrateur ou faites une Issue sur ``github`` !")
             except UnboundLocalError:
                 await self.bot.say(":interrobang: Veuillez choisir une réaction valide !")
-            except DisambiguationError:
+            except:
                 await self.bot.say(":open_mouth: Une **erreur interne** est survenue, si cela ce reproduit contactez votre administrateur ou faites une Issue sur ``github`` !")
         except IndexError:
             await self.bot.say(" :interrobang: Veuillez entrer un terme de recherche !")
