@@ -1,5 +1,5 @@
 
-_Pour utiliser les Horloges utilisez la commande : **{0}clock **nom de l'horloge_
+_Pour utiliser les Horloges utilisez la commande : **clock **nom de l'horloge_
 -> Montreal (Canada, QC)
 -> Vancouver (Canada, BC)
 -> New-York / N-Y (U.S.A.)
