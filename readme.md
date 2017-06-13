@@ -1,4 +1,4 @@
-# Titre du projet
+# Tuxbot
 
 [![forthebadge](http://forthebadge.com/images/badges/contains-cat-gifs.svg)](http://forthebadge.com)
 
