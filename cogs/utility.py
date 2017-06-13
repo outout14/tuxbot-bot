@@ -83,7 +83,7 @@ class Utility:
                     await self.bot.say(embed=em)
                 else:
                     tt = utc.strftime(form)
-                    em = discord.Embed(title='Heure à ' + args[1].title(), description="A [{}]({}) {}, Il est **{}** ! \n {} \n _source des images et du texte : [Wikimedia foundation](http://commons.wikimedia.org/)_".format(str(args), site, str(country), str(tt), str(description)), colour=0xEEEEEE)
+                    em = discord.Embed(title='Heure à ' + args.title(), description="A [{}]({}) {}, Il est **{}** ! \n {} \n _source des images et du texte : [Wikimedia foundation](http://commons.wikimedia.org/)_".format(str(args), site, str(country), str(tt), str(description)), colour=0xEEEEEE)
                     em.set_thumbnail(url = img)
                     await self.bot.say(embed=em)
             except UnboundLocalError:
