@@ -57,18 +57,21 @@ class Identity:
             await self.bot.say(ctx.message.author.mention + "> :x: Désolé mais {} est sans papier !".format(args.mention))
 
         else:
-            userbirth = result[3].split(" ")
-            cidate = result[4].split(" ")
-            embed=discord.Embed(title="Carte d'identité | Communisme Linuxien")
-            embed.set_author(name=result[1], icon_url=result[2])
-            embed.set_thumbnail(url = result[2])
-            embed.add_field(name="Nom :", value=result[1], inline=True)
-            embed.add_field(name="Système d'exploitation :", value=isexist(result[6]), inline=True)
-            embed.add_field(name="Configuration Système : ", value=isexist(result[7]), inline=True)
-            embed.add_field(name="Date de naissance : ", value=userbirth[0], inline=True)
-            embed.add_field(name="Pays : ", value=isexist(result[8]), inline=True)
-            embed.set_footer(text="Enregistré dans le bureau {} le {}.".format(result[5], cidate[0]))
-            await self.bot.say(embed=embed)
+            try:
+                userbirth = result[3].split(" ")
+                cidate = result[4].split(" ")
+                embed=discord.Embed(title="Carte d'identité | Communisme Linuxien")
+                embed.set_author(name=result[1], icon_url=result[2])
+                embed.set_thumbnail(url = result[2])
+                embed.add_field(name="Nom :", value=result[1], inline=True)
+                embed.add_field(name="Système d'exploitation :", value=isexist(result[6]), inline=True)
+                embed.add_field(name="Configuration Système : ", value=isexist(result[7]), inline=True)
+                embed.add_field(name="Date de naissance : ", value=userbirth[0], inline=True)
+                embed.add_field(name="Pays : ", value=isexist(result[8]), inline=True)
+                embed.set_footer(text="Enregistré dans le bureau {} le {}.".format(result[5], cidate[0]))
+                await self.bot.say(embed=embed)
+            except:
+                await self.bot.say(ctx.message.author.mention + "> :x: Désolé mais la carte d'identité de {0} est trop longue de ce fait je ne peux te l'envoyer, essaye de l'aléger, {0} :wink: !".format(args.mention))
 
     @_ci.command(pass_context=True, name="register")
     async def ci_register(self, ctx):
@@ -126,7 +129,6 @@ class Identity:
             await self.bot.say(ctx.message.author.mention + "> :ok_hand: Carte d'identité mise à jour !")
         else:
             await self.bot.say(ctx.message.author.mention + "> :x: Veuillez enregistrer votre carte d'identité pour commencer !")
-
 
     @_ci.command(pass_context=True, name="list")
     async def ci_list(self, ctx):
