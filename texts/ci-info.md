@@ -2,8 +2,8 @@ La carte d'identité est un petit système dans tuxbot permetant de vous démarq
 
 **Liste des commandes : **
 -> ci : Affiche l'aide sur les cartes d'identité
--> ci show _@pseudo_ : Affiche la carte d'identité de _pseudo_
+-> ci show _@pseudo_ : Affiche la carte d'identité de _@pseudo_
 -> ci register : Vous enregistre dans la base de donnée des cartes d'identité
 -> ci setos _nom de l'os_ : Défini le système d'exploitation
 -> ci setconfig _votre configuration pc_ : Défini la configuration de votre ordinateur
--> ci setcountry : Défini votre Pays  
+-> ci setcountry : Défini votre pays 
