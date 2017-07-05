@@ -1,10 +1,8 @@
 from discord.ext import commands
-from random import choice, shuffle
 import aiohttp
 import asyncio
 import time
 import discord
-import platform
 from .utils import checks
 
 class Admin:
@@ -33,7 +31,7 @@ class Admin:
             self.bot.unload_extension(module)
             self.bot.load_extension(module)
             await self.bot.say("Nice !")
-        except Exception as e:
+        except Exception as e: #TODO : A virer dans l'event on_error
             await self.bot.say(':( Erreur :')
             await self.bot.say('{}: {}'.format(type(e).__name__, e))
         else:
@@ -46,17 +44,16 @@ class Admin:
             number = number + 1
             await self.bot.purge_from(ctx.message.channel, limit=number)
             await self.bot.say("Hello World !")
-        except Exception as e:
+        except Exception as e: #TODO : A virer dans l'event on_error
             await self.bot.say(':sob: Une erreur est survenue : \n {}: {}'.format(type(e).__name__, e))
 
     @checks.is_owner()
     @commands.command(name='say', pass_context=True, hidden=True)
-    async def _say(self, ctx, dire):
+    async def _say(self, ctx, *dire:str):
         try:
-            arg = ctx.message.content.split("say ")
-            await self.bot.say(arg[1])
+            await self.bot.say(dire)
             await self.bot.delete_message(ctx.message)
-        except Exception as e:
+        except Exception as e: #TODO : A virer dans l'event on_error
             await self.bot.say(':sob: Une erreur est survenue : \n {}: {}'.format(type(e).__name__, e))
 
     @checks.is_owner()

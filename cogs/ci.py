@@ -84,6 +84,22 @@ class Identity:
             conn.commit()
             await self.bot.say(":clap: Bievenue à toi {} dans le communisme {} ! Fait ``.ci`` pour plus d'informations !".format(ctx.message.author.name, ctx.message.server.name))
 
+    @_ci.command(pass_context=True, name="upimage")
+    async def ci_image(self, ctx):
+        try:
+            cursor.execute("""SELECT id, userid FROM users WHERE userid=?""", (ctx.message.author.id,))
+            existansw = cursor.fetchone()
+
+            if existansw != None:
+                cursor.execute("""UPDATE users SET useravatar = ? WHERE userid = ?""", (ctx.message.author.avatar_url, ctx.message.author.id))
+                conn.commit()
+                await self.bot.say(ctx.message.author.mention + "> :ok_hand: Carte d'identité mise à jour; Sympa ton nouvel avatar :wink: !")
+            else:
+                await self.bot.say(ctx.message.author.mention + "> :x: Veuillez enregistrer votre carte d'identité pour commencer !")
+        except Exception as e: #TODO : A virer dans l'event on_error
+            await self.bot.say(':( Erreur veuillez contacter votre administrateur :')
+            await self.bot.say('{}: {}'.format(type(e).__name__, e))
+
     @_ci.command(pass_context=True, name="setconfig")
     async def ci_setconfig(self, ctx, args_):
         try:

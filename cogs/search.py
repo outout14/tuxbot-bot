@@ -69,7 +69,7 @@ class Search:
     @_search.command(pass_context=True, name="wikipedia")
     async def search_wikipedia(self, ctx, args):
         """Fait une recherche sur wikipd"""
-        try:
+        try: # C'est quoi ce try-except de la mort ?
             wait = await self.bot.say("_Je cherche..._")
             results = wikipedia.search(args)
             nbmr = 0
@@ -109,11 +109,11 @@ class Search:
                 await self.bot.delete_message(wait)
                 await self.bot.say(embed=em)
 
-            except wikipedia.exceptions.PageError:
+            except wikipedia.exceptions.PageError: #TODO : A virer dans l'event on_error
                 await self.bot.say(":open_mouth: Une **erreur interne** est survenue, si cela ce reproduit contactez votre administrateur ou faites une Issue sur ``github`` !")
             except UnboundLocalError:
                 await self.bot.say(":interrobang: Veuillez choisir une réaction valide !")
-            except:
+            except DisambiguationError: #TODO : A virer dans l'event on_error
                 await self.bot.say(":open_mouth: Une **erreur interne** est survenue, si cela ce reproduit contactez votre administrateur ou faites une Issue sur ``github`` !")
         except IndexError:
             await self.bot.say(" :interrobang: Veuillez entrer un terme de recherche !")

@@ -22,6 +22,11 @@ class Funs:
         embed.set_thumbnail(url=user.avatar_url)
         await self.bot.say(embed=embed)
 
+    @commands.command(pass_context=True)
+    async def poke(self, user : discord.Member):
+        """Poke quelqu'un"""
+        await self.bot.say(":clap: Hey {0} tu t'es fait poker par {1}.".format(user.mention, ctx.message.author))
+
     @commands.command()
     async def btcprice(self):
         """Le prix du BTC"""
@@ -56,7 +61,7 @@ class Funs:
     @commands.command()
     async def ethylotest(self):
         """Ethylotest simulator 2018"""
-        results_poulet = ["Désolé mais mon ethylotest est sous Windows Vista, merci de patienter...", "_(ethylotest)_ ``Une erreur est survenue. Windows cherche une solution à se prolbème...``", "Mais j'l'ai foutu où ce p*** d'ethylotest de m..... bordel fait ch..... tab....", "C'est pas possible z'avez cassé l'ethylotest !"]
+        results_poulet = ["Désolé mais mon ethylotest est sous Windows Vista, merci de patienter...", "_(ethylotest)_ ``Une erreur est survenue. Windows cherche une solution à se problème...``", "Mais j'l'ai foutu où ce p*** d'ethylotest de m*** bordel fait ch*** tab***", "C'est pas possible z'avez cassé l'ethylotest !"]
         results_client = ["D'accord, il n'y a pas de problème à cela je suis complètement clean", "Bien sur si c'est votre devoir !", "Suce bi** !", "J'ai l'air d'être bourré ?", "_laissez moi prendre un bonbon à la menthe..._"]
 
         result_p = random.choice(results_poulet)
@@ -71,8 +76,8 @@ class Funs:
     @commands.command()
     async def coin(self):
         """Coin flip simulator 2025"""
-        starts_msg = ["Je lance la pièce !", "C'est partit !", "C'est une pièce de d'un cent faut pas la perdre", "C'est une pièce de d'un euro faut pas la perdre", "Je lance !"]
-        results_coin = ["{0} pile", "{0} face", "{1} Heu c'est quoi pile c'est quoi face enfaite ?", "{1} How shit, je crois que je l'ai perdu", "{1} Et bim je te vol ta pièce !", "{0} Oh une erreur d'impression y'a ni pile ni face !"]
+        starts_msg = ["Je lance la pièce !", "C'est parti !", "C'est une pièce d'un cent faut pas la perdre", "C'est une pièce d'un euro faut pas la perdre", "Je lance !"]
+        results_coin = ["{0} pile", "{0} face", "{1} Heu c'est quoi pile c'est quoi face enfaite ?", "{1} Oh shit, je crois que je l'ai perdue", "{1} Et bim je te vol ta pièce !", "{0} Oh une erreur d'impression il n'y a ni pile ni face !"]
 
         start = random.choice(starts_msg)
         result = random.choice(results_coin)

@@ -1,21 +1,22 @@
-# Titre du projet
+# Tuxbot
 
 [![forthebadge](http://forthebadge.com/images/badges/contains-cat-gifs.svg)](http://forthebadge.com)
+[![forthebadge](https://forthebadge.com/images/badges/made-with-python.svg)](http://forthebadge.com)
 
 TuxBot, un bot discord écrit en Python.
-Ici se trouve le code source de ce bot proventant du serveur Discord "Aide GNU/Linux-Fr", il à été créé spécialement pour ce discord, si vous souhaitez l'utiliser il vous faudra modifier ``settings.json`` et ``cogs/utils/checks.py`` ;)
+Ici ce trouve le code source du bot provenant du serveur Discord  [Aide GNU/Linux-Fr"](https://discord.gg/79943dJ "Rejoindre le serveur"), il à été créé spécialement pour ce discord, si vous souhaitez l'utiliser il vous faudra modifier ``settings.json`` et ``cogs/utils/checks.py`` ;)
 
 ### Pré-requis
 
 Il vous faut :
 
-- Un ordinateur sous **linux** avec une connexion à l'internet
-- Python3.5 ou + 
+- Un ordinateur sous **GNU/Linux** avec une connexion à internet;
+- Python3.5 ou + ;
 - Installer ``requirements.txt`` (avec ``pip install -r requirements.txt`` par ex)
 
 ### Installation
 
-Une fois les prérequis installés et les paramètres édités placez vous dans le repertoire du bot et lancez ``bot.py`` avec python3 (ex: ``python3 bot.py``)
+Une fois les pré-requis installés et les paramètres édités, placez vous dans le repertoire du bot et lancez ``bot.py`` avec python3 (ex: ``python3 bot.py``)
 
 ## Démarrage
 
