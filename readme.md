@@ -35,6 +35,6 @@ Liste des versions : [Cliquer pour afficher](https://github.com/outout14/tuxbot-
 
 ## License
 
-Ce projet est sous licence ``CreativeCommons BY-NC-SA`` - voir le fichier [LICENSE.md](LICENSE.md) pour plus d'informations
+Ce projet est sous licence ``Creative Commons BY-NC-SA 4.0`` - voir le fichier [LICENSE.md](LICENSE.md) pour plus d'informations
 
 

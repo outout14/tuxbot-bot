@@ -93,7 +93,12 @@ async def on_message(message):
         await bot.send_message(message.channel, message.author.mention + " > Evite les messages en majuscule, ce n'est pas la peine de crier !")
 
     await bot.process_commands(message)
-
+    #CHUTE
+    #ON RECUPERE LES MESSAGES#
+    print("{}@{}@{} - {}".format(message.author, message.channel.name, message.server, message.content))
+    fichier = open("messages.txt", "a")
+    fichier.write("{}@{}@{} - {} \n".format(message.author, message.channel.name, message.server, message.content))
+    
 @bot.command(pass_context=True, hidden=True)
 @checks.is_owner()
 async def do(ctx, times : int, *, command):
