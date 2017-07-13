@@ -83,22 +83,8 @@ async def on_message(message):
     if message.author.bot:
         return
 
-    if re.search(r'^(cc |bonjour |salut |hello |bjr |slt |s\'lut)?([^ ]+ ){0,3}(qui s\'y conna(î|i)(t|s)|des gens|quelqu\'un|qqun|des personnes|du monde s\'y connait)[^\?]+\?$',message.content):
-        await bot.send_message(message.channel, ":question: N'hésite pas à poser ta question directement {}, il n'est pas utile de demander si quelqu'un connait quelque chose avant ! :wink:".format(message.author.mention))
-
-    if re.match(r'^<@(\w+)>$', message.content):
-        await bot.send_message(message.channel, message.author.mention + " > Tu voulais lui dire quoi ? Tu le mentionne sans message !")
-
-    if re.match(r"[A-Z]{5,}", message.content) and not message.author.bot and len(message.content) > 5:
-        await bot.send_message(message.channel, message.author.mention + " > Evite les messages en majuscule, ce n'est pas la peine de crier !")
-
     await bot.process_commands(message)
-    #CHUTE
-    #ON RECUPERE LES MESSAGES#
-    print("{}@{}@{} - {}".format(message.author, message.channel.name, message.server, message.content))
-    fichier = open("messages.txt", "a")
-    fichier.write("{}@{}@{} - {} \n".format(message.author, message.channel.name, message.server, message.content))
-    
+
 @bot.command(pass_context=True, hidden=True)
 @checks.is_owner()
 async def do(ctx, times : int, *, command):
