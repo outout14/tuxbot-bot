@@ -7,6 +7,12 @@ import platform, socket
 import os
 import sqlite3
 
+import time
+import datetime, pytz
+
+from datetime import date
+import calendar
+
 #### SQL #####
 conn = sqlite3.connect('tuxbot.db') #Connexion SQL
 
@@ -39,7 +45,7 @@ class Identity:
         if ctx.invoked_subcommand is None:
             text = open('texts/ci-info.md').read()
             em = discord.Embed(title='Commandes de carte d\'identité de TuxBot', description=text, colour=0x89C4F9)
-            await self.bot.say(embed=em)
+            await ctx.send(embed=em)
 
     @_ci.command(pass_context=True, name="show")
     async def ci_test(self, ctx, args : discord.Member):
@@ -50,11 +56,11 @@ class Identity:
             else:
                 return var
 
-        cursor.execute("""SELECT userid, username, useravatar, userbirth, cidate, cibureau, os, config, pays FROM users WHERE userid=?""",(args.id,))
+        cursor.execute("""SELECT userid, username, useravatar, userbirth, cidate, cibureau, os, config, pays, id FROM users WHERE userid=?""",(args.id,))
         result = cursor.fetchone()
 
         if not result:
-            await self.bot.say(ctx.message.author.mention + "> :x: Désolé mais {} est sans papier !".format(args.mention))
+            await ctx.send(ctx.message.author.mention + "> :x: Désolé mais {} est sans papier !".format(args.mention))
 
         else:
             try:
@@ -68,37 +74,57 @@ class Identity:
                 embed.add_field(name="Configuration Système : ", value=isexist(result[7]), inline=True)
                 embed.add_field(name="Date de naissance : ", value=userbirth[0], inline=True)
                 embed.add_field(name="Pays : ", value=isexist(result[8]), inline=True)
+                embed.add_field(name="Profil sur le web : ", value="https://tuxbot.outout.tech/user-{}".format(result[9]), inline=True)
                 embed.set_footer(text="Enregistré dans le bureau {} le {}.".format(result[5], cidate[0]))
-                await self.bot.say(embed=embed)
+                await ctx.send(embed=embed)
             except:
-                await self.bot.say(ctx.message.author.mention + "> :x: Désolé mais la carte d'identité de {0} est trop longue de ce fait je ne peux te l'envoyer, essaye de l'aléger, {0} :wink: !".format(args.mention))
+                await ctx.send(ctx.message.author.mention + "> :x: Désolé mais la carte d'identité de {0} est trop longue de ce fait je ne peux te l'envoyer, essaye de l'aléger, {0} :wink: !".format(args.mention))
 
     @_ci.command(pass_context=True, name="register")
     async def ci_register(self, ctx):
         cursor.execute("""SELECT id, userid FROM users WHERE userid=?""", (ctx.message.author.id,))
         existansw = cursor.fetchone()
         if existansw != None:
-            await self.bot.say("Mais tu as déja une carte d'identité ! u_u")
+            await ctx.send("Mais tu as déja une carte d'identité ! u_u")
         else:
-            cursor.execute("""INSERT INTO users(userid, username, useravatar, userbirth, cidate, cibureau) VALUES(?, ?, ?, ?, ?, ?)""", (ctx.message.author.id, ctx.message.author.name,  ctx.message.author.avatar_url, ctx.message.author.created_at, ctx.message.timestamp, ctx.message.server.name))
-            conn.commit()
-            await self.bot.say(":clap: Bievenue à toi {} dans le communisme {} ! Fait ``.ci`` pour plus d'informations !".format(ctx.message.author.name, ctx.message.server.name))
+            date = datetime.datetime.now()
 
-    @_ci.command(pass_context=True, name="upimage")
+            nd = str(date.day)
+            nd += "-"
+            nd += str(date.month)
+            nd += "-"
+            nd += str(date.year)
+
+            cursor.execute("""INSERT INTO users(userid, username, useravatar, userbirth, cidate, cibureau) VALUES(?, ?, ?, ?, ?, ?)""", (ctx.message.author.id, ctx.message.author.name,  ctx.message.author.avatar_url, ctx.message.author.created_at, nd, str(ctx.message.guild.name)))
+            conn.commit()
+            await ctx.send(":clap: Bievenue à toi {} dans le communisme {} ! Fait ``.ci`` pour plus d'informations !".format(ctx.message.author.name, str(ctx.message.guild.name)))
+
+    @_ci.command(pass_context=True, name="delete")
+    async def ci_delete(self, ctx):
+        cursor.execute("""SELECT id, userid FROM users WHERE userid=?""", (ctx.message.author.id,))
+        existansw = cursor.fetchone()
+        if existansw != None:
+            cursor.execute("""DELETE FROM users WHERE userid =?""", (ctx.message.author.id,))
+            await ctx.send("Tu es maintenant sans papiers !")
+        else:
+            await ctx.send("Déja enregistre ta carte d'identité avant de la supprimer u_u (après c'est pas logique...)")
+
+    @_ci.command(pass_context=True, name="update")
     async def ci_image(self, ctx):
         try:
             cursor.execute("""SELECT id, userid FROM users WHERE userid=?""", (ctx.message.author.id,))
             existansw = cursor.fetchone()
 
             if existansw != None:
-                cursor.execute("""UPDATE users SET useravatar = ? WHERE userid = ?""", (ctx.message.author.avatar_url, ctx.message.author.id))
+                cursor.execute("""UPDATE users SET useravatar = ?, username = ?, cibureau = ? WHERE userid = ?""", (ctx.message.author.avatar_url, ctx.message.author.name, str(ctx.message.guild), ctx.message.author.id))
                 conn.commit()
-                await self.bot.say(ctx.message.author.mention + "> :ok_hand: Carte d'identité mise à jour; Sympa ton nouvel avatar :wink: !")
+                await ctx.send(ctx.message.author.mention + "> Tu viens, en quelques sortes, de renaitre !")
             else:
-                await self.bot.say(ctx.message.author.mention + "> :x: Veuillez enregistrer votre carte d'identité pour commencer !")
+                await ctx.send(ctx.message.author.mention + "> :x: Veuillez enregistrer votre carte d'identité pour commencer !")
+
         except Exception as e: #TODO : A virer dans l'event on_error
-            await self.bot.say(':( Erreur veuillez contacter votre administrateur :')
-            await self.bot.say('{}: {}'.format(type(e).__name__, e))
+            await ctx.send(':( Erreur veuillez contacter votre administrateur :')
+            await ctx.send('{}: {}'.format(type(e).__name__, e))
 
     @_ci.command(pass_context=True, name="setconfig")
     async def ci_setconfig(self, ctx, args_):
@@ -111,11 +137,11 @@ class Identity:
             if existansw != None:
                 cursor.execute("""UPDATE users SET config = ? WHERE userid = ?""", (args, ctx.message.author.id))
                 conn.commit()
-                await self.bot.say(ctx.message.author.mention + "> :ok_hand: Carte d'identité mise à jour !")
+                await ctx.send(ctx.message.author.mention + "> :ok_hand: Carte d'identité mise à jour !")
             else:
-                await self.bot.say(ctx.message.author.mention + "> :x: Veuillez enregistrer votre carte d'identité pour commencer !")
+                await ctx.send(ctx.message.author.mention + "> :x: Veuillez enregistrer votre carte d'identité pour commencer !")
         except:
-            await self.bot.say(ctx.message.author.mention + "> :x: Il manque un paramètre !")
+            await ctx.send(ctx.message.author.mention + "> :x: Il manque un paramètre !")
 
     @_ci.command(pass_context=True, name="setos")
     async def ci_setos(self, ctx, args_):
@@ -128,11 +154,11 @@ class Identity:
             if existansw != None:
                 cursor.execute("""UPDATE users SET os = ? WHERE userid = ?""", (args, ctx.message.author.id))
                 conn.commit()
-                await self.bot.say(ctx.message.author.mention + "> :ok_hand: Carte d'identité mise à jour !")
+                await ctx.send(ctx.message.author.mention + "> :ok_hand: Carte d'identité mise à jour !")
             else:
-                await self.bot.say(ctx.message.author.mention + "> :x: Veuillez enregistrer votre carte d'identité pour commencer !")
+                await ctx.send(ctx.message.author.mention + "> :x: Veuillez enregistrer votre carte d'identité pour commencer !")
         except:
-            await self.bot.say(ctx.message.author.mention + "> :x: Il manque un paramètre !")
+            await ctx.send(ctx.message.author.mention + "> :x: Il manque un paramètre !")
 
     @_ci.command(pass_context=True, name="setcountry")
     async def ci_setcountry(self, ctx, args):
@@ -142,9 +168,9 @@ class Identity:
         if existansw != None:
             cursor.execute("""UPDATE users SET pays = ? WHERE userid = ?""", (args, ctx.message.author.id))
             conn.commit()
-            await self.bot.say(ctx.message.author.mention + "> :ok_hand: Carte d'identité mise à jour !")
+            await ctx.send(ctx.message.author.mention + "> :ok_hand: Carte d'identité mise à jour !")
         else:
-            await self.bot.say(ctx.message.author.mention + "> :x: Veuillez enregistrer votre carte d'identité pour commencer !")
+            await ctx.send(ctx.message.author.mention + "> :x: Veuillez enregistrer votre carte d'identité pour commencer !")
 
     @_ci.command(pass_context=True, name="list")
     async def ci_list(self, ctx):
@@ -154,9 +180,9 @@ class Identity:
         try:
             for row in rows:
                 msg = msg + '{0} : {1} \n'.format(row[0], row[1])
-            await self.bot.say(msg)
+            await ctx.send(msg)
         except:
-            await self.bot.say(":x: Pas d'entrés")
+            await ctx.send(":x: Pas d'entrés")
 
 def setup(bot):
     bot.add_cog(Identity(bot))

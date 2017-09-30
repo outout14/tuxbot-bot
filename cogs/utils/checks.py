@@ -3,9 +3,13 @@ import discord.utils
 from discord.ext import commands
 
 
-def is_owner_check(message):
-    owner = message.author.id in ['171685542553976832', '163697401935298560', '88644904112128000', '92619860521005056', '273757386127441920'] ###ID's modo & admin
-    return owner  # Owner of the bot
+def is_owner_check(message):           #    OUTOUT id                RICK id               L4P1N id             GIGA id              FLAYOR id              ROMAIN id
+    owner = str(message.author.id) in ['171685542553976832', '163697401935298560', '88644904112128000', '92619860521005056', '273757386127441920', '269156684155453451'] ###ID's modo & admin
+    rights = str(message.author.top_role.name).upper() in ['ADMIN', 'ADMINISTRATEURS', 'ADMINISTRATEUR', 'MODO', 'MODÉRATEUR', 'MODÉRATEURS', 'MODERATEUR', 'MODERATEURS']
+    if rights == True or owner == True:
+        return True  # Owner of the bot
+    else: 
+        return False
 
 def is_owner(warn=True):
     def check(ctx, warn):
@@ -56,3 +60,16 @@ def is_in_servers(*server_ids):
         return server.id in server_ids
 
     return commands.check(predicate)
+
+def embed_perms(message):
+    try:
+        check = message.author.permissions_in(message.channel).embed_links
+    except:
+        check = True
+
+    return check
+
+def is_mod():
+    async def pred(ctx):
+        return await check_guild_permissions(ctx, {'manage_guild': True})
+    return commands.check(pred)

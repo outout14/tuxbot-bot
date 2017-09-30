@@ -23,6 +23,7 @@ Je suis TuxBot, le bot qui vit de l'OpenSource ! ;)
 l_extensions = [
 
     'cogs.basics',
+    #'cogs.test',
     'cogs.admin',
     'cogs.funs',
     'cogs.utility',
@@ -55,9 +56,9 @@ bot = commands.Bot(command_prefix=prefix, description=description, pm_help=None,
 @bot.event
 async def on_command_error(error, ctx):
     if isinstance(error, commands.NoPrivateMessage):
-        await bot.send_message(ctx.message.author, 'This command cannot be used in private messages.')
+        await bot.send_message(ctx.message.author, 'Cette commande ne peut pas être utilisée en message privée.')
     elif isinstance(error, commands.DisabledCommand):
-        await bot.send_message(ctx.message.author, 'Sorry. This command is disabled and cannot be used.')
+        await bot.send_message(ctx.message.author, 'Désoler mais cette commande est désactivé, elle ne peut donc pas être utilisée.')
     elif isinstance(error, commands.CommandInvokeError):
         print('In {0.command.qualified_name}:'.format(ctx), file=sys.stderr)
         traceback.print_tb(error.original.__traceback__)
@@ -68,7 +69,7 @@ async def on_ready():
     print('---------------------')
     print('Logged in as :')
     print('Username: ' + bot.user.name)
-    print('ID: ' + bot.user.id)
+    print('ID: ' + str(bot.user.id))
     print('---------------------')
     await bot.change_presence(game=discord.Game(name="Manger des pommes ! .help !"), status=discord.Status("dnd"), afk=False)
     if not hasattr(bot, 'uptime'):
@@ -83,7 +84,10 @@ async def on_message(message):
     if message.author.bot:
         return
 
-    await bot.process_commands(message)
+    try:
+        await bot.process_commands(message)
+    except Exception as e:
+        print('Hé merde, : \n {}: {} \n \n'.format(type(e).__name__, e))
 
 @bot.command(pass_context=True, hidden=True)
 @checks.is_owner()
@@ -94,15 +98,23 @@ async def do(ctx, times : int, *, command):
     for i in range(times):
         await bot.process_commands(msg)
 
-
-## GITHUB CMD ##
-@bot.command()
-async def github():
+@bot.command(pass_context=True)
+async def github(ctx):
     """Pour voir mon code"""
     text = "How tu veux voir mon repos Github pour me disséquer ? Pas de soucis ! Je suis un Bot, je ne ressens pas la douleur !\n https://github.com/outout14/tuxbot-bot"
     em = discord.Embed(title='Repos TuxBot-Bot', description=text, colour=0xE9D460)
     em.set_author(name='Outout', icon_url="https://avatars0.githubusercontent.com/u/14958554?v=3&s=400")
-    await bot.say(embed=em)
+    await ctx.send(embed=em)
+
+async def on_command_error(self, ctx, error):
+    if isinstance(error, commands.NoPrivateMessage):
+        await ctx.author.send('Cette commande ne peut pas être utilisée en message privée.')
+    elif isinstance(error, commands.DisabledCommand):
+        await ctx.author.send('Désoler mais cette commande est désactivé, elle ne peut donc pas être utilisée.')
+    elif isinstance(error, commands.CommandInvokeError):
+        print(f'In {ctx.command.qualified_name}:', file=sys.stderr)
+        traceback.print_tb(error.original.__traceback__)
+        print(f'{error.original.__class__.__name__}: {error.original}', file=sys.stderr)
 
 ## LOAD ##
 if __name__ == '__main__':

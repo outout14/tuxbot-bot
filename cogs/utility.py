@@ -8,6 +8,11 @@ import discord
 import urllib.request, json
 import datetime, pytz
 
+from datetime import date
+import calendar
+import requests
+
+
 class Utility:
     """Commandes utilitaires."""
 
@@ -15,7 +20,7 @@ class Utility:
         self.bot = bot
 
     @commands.command()
-    async def clock(self, args):
+    async def clock(self, ctx, args):
         """Display hour in a country"""
         args = args.upper()
         then = datetime.datetime.now(pytz.utc)
@@ -80,19 +85,21 @@ class Utility:
                 if args == "LIST":
                     text = open('texts/clocks.md').read()
                     em = discord.Embed(title='Liste des Horloges', description=text, colour=0xEEEEEE)
-                    await self.bot.say(embed=em)
+                    await ctx.send(embed=em)
                 else:
                     tt = utc.strftime(form)
                     em = discord.Embed(title='Heure à ' + args.title(), description="A [{}]({}) {}, Il est **{}** ! \n {} \n _source des images et du texte : [Wikimedia foundation](http://commons.wikimedia.org/)_".format(str(args), site, str(country), str(tt), str(description)), colour=0xEEEEEE)
                     em.set_thumbnail(url = img)
-                    await self.bot.say(embed=em)
+                    await ctx.send(embed=em)
             except UnboundLocalError:
-                await self.bot.say("[**Erreur**] Ville inconnue, faites ``.clock list`` pour obtenir la liste des villes")
+                await ctx.send("[**Erreur**] Ville inconnue, faites ``.clock list`` pour obtenir la liste des villes")
         except IndexError:
-            await self.bot.say("[**Erreur**] Ville inconnue, faites ``.clock list`` pour obtenir la liste des villes")
+            await ctx.send("[**Erreur**] Ville inconnue, faites ``.clock list`` pour obtenir la liste des villes")
+
+    """--------------------------------------------------------------------------------------------------------------------------"""
 
     @commands.command()
-    async def ytdiscover(self):
+    async def ytdiscover(self, ctx):
         """Random youtube channel"""
         with open('texts/ytb.json') as js:
             ytb = json.load(js)
@@ -103,7 +110,9 @@ class Utility:
         embed = discord.Embed(title=chaine['name'], url=chaine['url'],
         description="**{}**, {} \n[Je veux voir ça]({})".format(chaine['name'], chaine['desc'], chaine['url']))
         embed.set_thumbnail(url='https://outout.tech/tuxbot/yt.png')
-        await self.bot.say(embed=embed)
+        await ctx.send(embed=embed)
+
+    """--------------------------------------------------------------------------------------------------------------------------"""
 
     @commands.command(pass_context=True)
     async def afk(self, ctx):
@@ -111,7 +120,9 @@ class Utility:
         msgs = ["s'absente de discord quelques instants", "se casse de son pc", "va sortir son chien", "reviens bientôt", "va nourrir son cochon", "va manger des cookies", "va manger de la poutine", "va faire caca", "va faire pipi"]
         msg = random.choice(msgs)
 
-        await self.bot.say("**{}** {}...".format(ctx.message.author.mention, msg))
+        await ctx.send("**{}** {}...".format(ctx.message.author.mention, msg))
+
+    """--------------------------------------------------------------------------------------------------------------------------"""
 
     @commands.command(pass_context=True)
     async def back(self, ctx):
@@ -119,8 +130,113 @@ class Utility:
         msgs = ["a réssuscité", "est de nouveau parmi nous", "a fini de faire caca", "a fini d'urine", "n'est plus mort", "est de nouveau sur son PC", "a fini de manger sa poutine", "a fini de danser", "s'est réveillé", "est de retour dans ce monde cruel"]
         msg = random.choice(msgs)
 
-        await self.bot.say("**{}** {} !".format(ctx.message.author.mention, msg))
+        await ctx.send("**{}** {} !".format(ctx.message.author.mention, msg))
 
+    """--------------------------------------------------------------------------------------------------------------------------"""
+
+    @commands.command(pass_context=True)
+    async def sondage(self, ctx, *, msg):
+        """Create a poll using reactions. >help rpoll for more information.
+        >rpoll <question> | <answer> | <answer> - Create a poll. You may use as many answers as you want, placing a pipe | symbol in between them.
+        Example:
+        >rpoll What is your favorite anime? | Steins;Gate | Naruto | Attack on Titan | Shrek
+        You can also use the "time" flag to set the amount of time in seconds the poll will last for.
+        Example:
+        >rpoll What time is it? | HAMMER TIME! | SHOWTIME! | time=10
+        """
+        await ctx.message.delete()
+        options = msg.split(" | ")
+        time = [x for x in options if x.startswith("time=")]
+        if time:
+            time = time[0]
+        if time:
+            options.remove(time)
+        if len(options) <= 1:
+            raise commands.errors.MissingRequiredArgument
+        if len(options) >= 11:
+            return await ctx.send("Vous ne pouvez mettre que 9 options de réponse ou moins.")
+        if time:
+            time = int(time.strip("time="))
+        else:
+            time = 0
+        emoji = ['1⃣', '2⃣', '3⃣', '4⃣', '5⃣', '6⃣', '7⃣', '8⃣', '9⃣']
+        to_react = []
+        confirmation_msg = "**{}?**:\n\n".format(options[0].rstrip("?"))
+        for idx, option in enumerate(options[1:]):
+            confirmation_msg += "{} - {}\n".format(emoji[idx], option)
+            to_react.append(emoji[idx])
+        confirmation_msg += "*Sondage proposé par* "+str(ctx.message.author.mention)
+        if time == 0:
+            confirmation_msg += ""
+        else:
+            confirmation_msg += "\n\nVous avez {} secondes pour voter!".format(time)
+        poll_msg = await ctx.send(confirmation_msg)
+        for emote in to_react:
+            await poll_msg.add_reaction(emote)
+
+        if time != 0:
+            await asyncio.sleep(time)
+
+        if time != 0:
+            async for message in ctx.message.channel.history():
+                if message.id == poll_msg.id:
+                    poll_msg = message
+            results = {}
+            for reaction in poll_msg.reactions:
+                if reaction.emoji in to_react:
+                    results[reaction.emoji] = reaction.count - 1
+            end_msg = "Le sondage est términé. Les résultats sont:\n\n"
+            for result in results:
+                end_msg += "{} {} - {} votes\n".format(result, options[emoji.index(result)+1], results[result])
+            top_result = max(results, key=lambda key: results[key])
+            if len([x for x in results if results[x] == results[top_result]]) > 1:
+                top_results = []
+                for key, value in results.items():
+                    if value == results[top_result]:
+                        top_results.append(options[emoji.index(key)+1])
+                end_msg += "\nLes gagnants sont : {}".format(", ".join(top_results))
+            else:
+                top_result = options[emoji.index(top_result)+1]
+                end_msg += "\n\"{}\" est le gagnant!".format(top_result)
+            await ctx.send(end_msg)
+
+        
+    """--------------------------------------------------------------------------------------------------------------------------"""
+
+    @commands.command(pass_context=True)
+    async def sondage_aide(self, ctx):
+        await ctx.message.delete()
+
+        text = open('texts/rpoll.md').read()
+        em = discord.Embed(title='Aide sur le sondage', description=text, colour=0xEEEEEE)
+        await ctx.send(embed=em)
+
+    """--------------------------------------------------------------------------------------------------------------------------"""
+
+    @commands.command(name='hastebin', pass_context=True)
+    async def _hastebin(self, ctx, *, data):
+        """Poster sur Hastebin."""
+        await ctx.message.delete()
+
+        post = requests.post("https://hastebin.com/documents", data=data)
+
+        try:
+            await ctx.send(str(ctx.message.author.mention)+" message posté avec succes sur :\nhttps://hastebin.com/{}.txt".format(post.json()["key"]))
+        except json.JSONDecodeError:
+            await ctx.send("Impossible de poster ce message. L'API doit etre HS.")
+
+    @commands.command(name='test', pass_context=True)
+    async def test(self, ctx):
+
+        date = datetime.datetime.now()
+
+        nd = str(date.day)
+        nd += "-"
+        nd += str(date.month)
+        nd += "-"
+        nd += str(date.year)
+
+        await ctx.send(nd)
 
 def setup(bot):
     bot.add_cog(Utility(bot))

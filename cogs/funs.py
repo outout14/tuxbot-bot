@@ -16,21 +16,22 @@ class Funs:
 
 
     @commands.command()
-    async def avatar(self, user : discord.Member):
+    async def avatar(self, ctx, user : discord.Member):
         """Récuperer l'avatar de ..."""
         embed = discord.Embed(title="Avatar de : " + user.name, url=user.avatar_url, description="[Voir en plus grand]({})".format(user.avatar_url))
         embed.set_thumbnail(url=user.avatar_url)
-        await self.bot.say(embed=embed)
+        await ctx.send(embed=embed)
 
     @commands.command(pass_context=True)
-    async def poke(self, user : discord.Member):
+    async def poke(self, ctx, user : discord.Member):
         """Poke quelqu'un"""
-        await self.bot.say(":clap: Hey {0} tu t'es fait poker par {1}.".format(user.mention, ctx.message.author))
+        await ctx.send(":clap: Hey {0} tu t'es fait poker par {1} !".format(user.mention, ctx.message.author.name))
+        await ctx.message.delete()
 
     @commands.command()
-    async def btcprice(self):
+    async def btcprice(self, ctx):
         """Le prix du BTC"""
-        loading = await self.bot.say("_réfléchis..._")
+        loading = await ctx.send("_réfléchis..._")
         try:
             with urllib.request.urlopen("http://api.coindesk.com/v1/bpi/currentprice/EUR.json") as url:
                 data = json.loads(url.read().decode())
@@ -40,26 +41,26 @@ class Funs:
             btc = 1
 
         if btc == 1:
-            await self.bot.say("Impossible d'accèder à l'API coindesk.com, veuillez réessayer ultérieurment !")
+            await ctx.send("Impossible d'accèder à l'API coindesk.com, veuillez réessayer ultérieurment !")
         else:
-            await self.bot.edit_message(loading, "Un bitcoin est égal à : " + btc[0] + " €")
+            await loading.edit(content="Un bitcoin est égal à : " + btc[0] + " €")
 
     @commands.command()
-    async def joke(self):
+    async def joke(self, ctx):
         """Print a random joke in a json file"""
         with open('texts/jokes.json') as js:
             jk = json.load(js)
 
-        clef = str(random.randint(1,12))
+        clef = str(random.randint(1,13))
         joke = jk["{}".format(clef)]
 
         embed = discord.Embed(title="Blague _{}_ : ".format(clef), description=joke['content'], colour=0x03C9A9)
         embed.set_footer(text="Par " + joke['author'])
         embed.set_thumbnail(url='https://outout.tech/tuxbot/blobjoy.png')
-        await self.bot.say(embed=embed)
+        await ctx.send(embed=embed)
 
     @commands.command()
-    async def ethylotest(self):
+    async def ethylotest(self, ctx):
         """Ethylotest simulator 2018"""
         results_poulet = ["Désolé mais mon ethylotest est sous Windows Vista, merci de patienter...", "_(ethylotest)_ ``Une erreur est survenue. Windows cherche une solution à se problème...``", "Mais j'l'ai foutu où ce p*** d'ethylotest de m*** bordel fait ch*** tab***", "C'est pas possible z'avez cassé l'ethylotest !"]
         results_client = ["D'accord, il n'y a pas de problème à cela je suis complètement clean", "Bien sur si c'est votre devoir !", "Suce bi** !", "J'ai l'air d'être bourré ?", "_laissez moi prendre un bonbon à la menthe..._"]
@@ -67,14 +68,14 @@ class Funs:
         result_p = random.choice(results_poulet)
         result_c = random.choice(results_client)
 
-        await self.bot.say(":oncoming_police_car: Bonjour bonjour, controle d'alcoolémie !")
+        await ctx.send(":oncoming_police_car: Bonjour bonjour, controle d'alcoolémie !")
         await asyncio.sleep(0.5)
-        await self.bot.say(":man: " + result_c)
+        await ctx.send(":man: " + result_c)
         await asyncio.sleep(1)
-        await self.bot.say(":police_car: " + result_p)
+        await ctx.send(":police_car: " + result_p)
 
     @commands.command()
-    async def coin(self):
+    async def coin(self, ctx):
         """Coin flip simulator 2025"""
         starts_msg = ["Je lance la pièce !", "C'est parti !", "C'est une pièce d'un cent faut pas la perdre", "C'est une pièce d'un euro faut pas la perdre", "Je lance !"]
         results_coin = ["{0} pile", "{0} face", "{1} Heu c'est quoi pile c'est quoi face enfaite ?", "{1} Oh shit, je crois que je l'ai perdue", "{1} Et bim je te vol ta pièce !", "{0} Oh une erreur d'impression il n'y a ni pile ni face !"]
@@ -82,12 +83,12 @@ class Funs:
         start = random.choice(starts_msg)
         result = random.choice(results_coin)
 
-        await self.bot.say(start)
+        await ctx.send(start)
         await asyncio.sleep(0.6)
-        await self.bot.say(result.format(":moneybag: Et la pièce retombe sur ...", ":robot:"))
+        await ctx.send(result.format(":moneybag: Et la pièce retombe sur ...", ":robot:"))
 
     @commands.command()
-    async def pokemon(self):
+    async def pokemon(self, ctx):
         """Random pokemon fight"""
         with open('texts/pokemons.json') as js:
             jk = json.load(js)
@@ -103,20 +104,20 @@ class Funs:
         except:
             winer = poke1
 
-        await self.bot.say(":flag_white: **Le combat commence !**")
+        await ctx.send(":flag_white: **Le combat commence !**")
         await asyncio.sleep(1)
-        await self.bot.say(":loudspeaker: Les concurants sont {} contre {} ! Bonne chance à eux !".format(poke1["Name"], poke2["Name"]))
+        await ctx.send(":loudspeaker: Les concurants sont {} contre {} ! Bonne chance à eux !".format(poke1["Name"], poke2["Name"]))
         await asyncio.sleep(0.5)
-        await self.bot.say(":boom: {} commence et utilise {}".format(poke1["Name"], poke1["Fast Attack(s)"][0]["Name"]))
+        await ctx.send(":boom: {} commence et utilise {}".format(poke1["Name"], poke1["Fast Attack(s)"][0]["Name"]))
         await asyncio.sleep(1)
-        await self.bot.say(":dash: {} réplique avec {}".format(poke2["Name"], poke2["Fast Attack(s)"][0]["Name"]))
+        await ctx.send(":dash: {} réplique avec {}".format(poke2["Name"], poke2["Fast Attack(s)"][0]["Name"]))
         await asyncio.sleep(1.2)
-        await self.bot.say("_le combat continue de se dérouler..._")
+        await ctx.send("_le combat continue de se dérouler..._")
         await asyncio.sleep(1.5)
-        await self.bot.say(":trophy: Le gagnant est **{}** !".format(winer["Name"]))
+        await ctx.send(":trophy: Le gagnant est **{}** !".format(winer["Name"]))
 
     @commands.command()
-    async def randomcat(self):
+    async def randomcat(self, ctx):
         """Display a random cat"""
 
         r = requests.get('http://random.cat/meow.php')
@@ -124,7 +125,7 @@ class Funs:
         embed = discord.Embed(title="Meow", description="[Voir le chat plus grand]({})".format(cat), colour=0x03C9A9)
         embed.set_thumbnail(url=cat)
         embed.set_author(name="Random.cat", url='https://random.cat/', icon_url='http://outout.tech/tuxbot/nyancat2.gif')
-        await self.bot.say(embed=embed)
+        await ctx.send(embed=embed)
 
 
 

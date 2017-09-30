@@ -5,6 +5,8 @@ import time
 import discord
 from .utils import checks
 
+import requests
+
 class Admin:
     """Commandes secrètes d'administration."""
 
@@ -12,56 +14,92 @@ class Admin:
         self.bot = bot
 
     @checks.is_owner()
-    @commands.command()
-    async def unload(self, module: str):
+    @commands.command(name='unload_cog', hidden=True)
+    async def _unload(self, ctx, module: str):
         """Unloads a module."""
         try:
-            self.bot.unload_extension(module)
+            self.bot.unload_extension("cogs."+module)
         except Exception as e:
-            await self.bot.say('\N{PISTOL}')
-            await self.bot.say('{}: {}'.format(type(e).__name__, e))
+            await ctx.send('\N{PISTOL}')
+            await ctx.send('{}: {}'.format(type(e).__name__, e))
         else:
-            await self.bot.say('\N{OK HAND SIGN}')
+            await ctx.send('\N{OK HAND SIGN}')
+            print("cog : " + str(module) + " activé")
+
+    """--------------------------------------------------------------------------------------------------------------------------"""
+
+    @checks.is_owner()
+    @commands.command(name='load_cog', hidden=True)
+    async def _load(self, ctx, module: str):
+        """Unloads a module."""
+        try:
+            self.bot.load_extension("cogs."+module)
+        except Exception as e:
+            await ctx.send('\N{PISTOL}')
+            await ctx.send('{}: {}'.format(type(e).__name__, e))
+        else:
+            await ctx.send('\N{OK HAND SIGN}')
+            print("cog : " + str(module) + " desactivé")
+
+    """--------------------------------------------------------------------------------------------------------------------------"""
 
     @checks.is_owner()
     @commands.command(name='reload_cog', hidden=True)
-    async def _reload(self, *, module: str):
+    async def _reload(self, ctx, *, module: str):
         """Reloads a module."""
         try:
-            self.bot.unload_extension(module)
-            self.bot.load_extension(module)
-            await self.bot.say("Nice !")
+            self.bot.unload_extension("cogs."+module)
+            self.bot.load_extension("cogs."+module)
+            await ctx.send("Je te reload ca")
         except Exception as e: #TODO : A virer dans l'event on_error
-            await self.bot.say(':( Erreur :')
-            await self.bot.say('{}: {}'.format(type(e).__name__, e))
+            await ctx.send(':( Erreur :')
+            await ctx.send('{}: {}'.format(type(e).__name__, e))
         else:
-            await self.bot.say('\N{OK HAND SIGN}')
+            await ctx.send('\N{OK HAND SIGN}')
+            print("cog : " + str(module) + " relancé")
+
+    """--------------------------------------------------------------------------------------------------------------------------"""
 
     @checks.is_owner()
     @commands.command(name='clear', pass_context=True, hidden=True)
     async def _clear(self, ctx, number: int):
-        try:
-            number = number + 1
-            await self.bot.purge_from(ctx.message.channel, limit=number)
-            await self.bot.say("Hello World !")
-        except Exception as e: #TODO : A virer dans l'event on_error
-            await self.bot.say(':sob: Une erreur est survenue : \n {}: {}'.format(type(e).__name__, e))
+
+        await ctx.message.delete()
+        if number < 1000:
+            async for message in ctx.message.channel.history(limit=number):
+                try:
+                    await message.delete()
+                except Exception as e: #TODO : A virer dans l'event on_error
+                    await ctx.send(':sob: Une erreur est survenue : \n {}: {}'.format(type(e).__name__, e))
+            await ctx.send("Hop voila j'ai viré des messages! Hello World")
+            print(str(number)+" messages ont été supprimés")
+        else:
+            await ctx.send('Trop de messages, entre un nombre < 1000')
+
+    """--------------------------------------------------------------------------------------------------------------------------"""
 
     @checks.is_owner()
     @commands.command(name='say', pass_context=True, hidden=True)
-    async def _say(self, ctx, *dire:str):
+    async def _say(self, ctx, *direuh:str):
         try:
-            await self.bot.say(dire)
-            await self.bot.delete_message(ctx.message)
+            dire = ctx.message.content.split("say ")
+            await ctx.message.delete()
+            await ctx.send(dire[1])
         except Exception as e: #TODO : A virer dans l'event on_error
-            await self.bot.say(':sob: Une erreur est survenue : \n {}: {}'.format(type(e).__name__, e))
+            await ctx.send(':sob: Une erreur est survenue : \n {}: {}'.format(type(e).__name__, e))
+
+    """--------------------------------------------------------------------------------------------------------------------------"""
 
     @checks.is_owner()
     @commands.command(pass_context=True, hidden=True)
-    async def _clearterm(self):
+    async def _clearterm(self, ctx):
         clear = "\n" * 100
         print(clear)
-        await self.bot.say(":ok_hand: It's good")
+        await ctx.send(":ok_hand: It's good")
+
+    """--------------------------------------------------------------------------------------------------------------------------"""
+
+
 
 def setup(bot):
     bot.add_cog(Admin(bot))

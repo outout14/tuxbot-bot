@@ -16,11 +16,11 @@ Il vous faut :
 
 ### Installation
 
-Une fois les pré-requis installés et les paramètres édités, placez vous dans le repertoire du bot et lancez ``bot.py`` avec python3 (ex: ``python3 bot.py``)
+Une fois les pré-requis installés et ``params.json`` édité, placez vous dans le repertoire de tuxbot et lancez ``bot.py`` avec python3 (ex: ``python3 bot.py``)
 
 ## Démarrage
 
-Placez vous dans le repertoire du bot et lancez ``bot.py`` avec python3 (ex: ``python3 bot.py``)
+Placez vous dans le repertoire de tuxbot et exécutez ``bot.py`` avec python3 (ex: ``python3 bot.py``)
 
 ## Fabriqué avec
 * [PyCharm](https://www.jetbrains.com/pycharm/) - Editeur de texte payant :3

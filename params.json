@@ -1,6 +1,5 @@
 {
-    "token": "token",
-    "bots_key": "don't touch",
-    "client_id": "client id!",
-    "carbon_key": "don't touch"
+    "token": "bot token",
+    "bots_key": "not required",
+    "client_id": "client id",
 }
