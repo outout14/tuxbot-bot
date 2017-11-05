@@ -38,3 +38,8 @@ Liste des versions : [Cliquer pour afficher](https://github.com/outout14/tuxbot-
 Ce projet est sous licence ``Creative Commons BY-NC-SA 4.0`` - voir le fichier [LICENSE.md](LICENSE.md) pour plus d'informations
 
 
+
+## Support on Beerpay
+Hey dude! Help me out for a couple of :beers:!
+
+[![Beerpay](https://beerpay.io/outout14/tuxbot-bot/badge.svg?style=beer-square)](https://beerpay.io/outout14/tuxbot-bot)  [![Beerpay](https://beerpay.io/outout14/tuxbot-bot/make-wish.svg?style=flat-square)](https://beerpay.io/outout14/tuxbot-bot?focus=wish)
