@@ -50,7 +50,8 @@ try:
 except:
     print("Le fichier de paramètre est introuvable, veuillez le créer et le configurer.")
 
-prefix = ['.']
+credentials = load_credentials()
+prefix = credentials.get("prefix", ["."])
 bot = commands.Bot(command_prefix=prefix, description=description, pm_help=None, help_attrs=help_attrs)
 
 @bot.event
@@ -67,11 +68,14 @@ async def on_command_error(error, ctx):
 @bot.event
 async def on_ready():
     print('---------------------')
-    print('Logged in as :')
-    print('Username: ' + bot.user.name)
-    print('ID: ' + str(bot.user.id))
+    print('CONNECTÉ :')
+    print("""   Nom d\'utilisateur : {0.name}#{0.discriminator}
+   ID : {0.id}""".format(bot.user))
+    print('Merci d\'utiliser TuxBot')
     print('---------------------')
-    await bot.change_presence(game=discord.Game(name="Manger des pommes ! .help !"), status=discord.Status("dnd"), afk=False)
+    await bot.change_presence(game=discord.Game(name=credentials.get("game", "Manger des pommes | .help")), status=discord.Status("dnd"), afk=False)
+	if bot.client_id == None:
+		bot.client_id = bot.user.id
     if not hasattr(bot, 'uptime'):
         bot.uptime = datetime.datetime.utcnow()
 
@@ -87,7 +91,7 @@ async def on_message(message):
     try:
         await bot.process_commands(message)
     except Exception as e:
-        print('Hé merde, : \n {}: {} \n \n'.format(type(e).__name__, e))
+        print('Erreur rencontré : \n {}: {} \n \n'.format(type(e).__name__, e))
 
 @bot.command(pass_context=True, hidden=True)
 @checks.is_owner()
@@ -120,10 +124,12 @@ async def on_command_error(self, ctx, error):
 if __name__ == '__main__':
     try:
         credentials = load_credentials()
-        token = credentials['token']
-        bot.client_id = credentials['client_id']
+        token = credentials.get('token')
+		if token is None:
+			print("/!\ Le token est manquant dans le fichier params.json...")
+        bot.client_id = credentials.get('client_id', None)
     except:
-        print("Impossible de démarer tuxbot.")
+        print("Impossible de démarer TuxBot dû à une erreur inconnue.")
 
 
     for extension in l_extensions:
