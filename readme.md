@@ -4,7 +4,7 @@
 [![forthebadge](https://forthebadge.com/images/badges/made-with-python.svg)](http://forthebadge.com)
 
 TuxBot, un bot discord écrit en Python.
-Ici ce trouve le code source du bot provenant du serveur Discord  [Aide GNU/Linux-Fr"](https://discord.gg/79943dJ "Rejoindre le serveur"), il à été créé spécialement pour ce discord, si vous souhaitez l'utiliser il vous faudra modifier ``settings.json`` et ``cogs/utils/checks.py`` ;)
+Ici ce trouve le code source du bot provenant du serveur Discord  [Aide GNU/Linux-Fr"](https://discord.gg/79943dJ "Rejoindre le serveur"), il à été créé spécialement pour ce discord, si vous souhaitez l'utiliser il vous faudra modifier ``params.json`` et ``cogs/utils/checks.py`` ;)
 
 ### Pré-requis
 
