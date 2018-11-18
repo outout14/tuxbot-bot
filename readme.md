@@ -1,22 +1,26 @@
 # Tuxbot
 TuxBot, un bot discord écrit en Python.
-Ici ce trouve le code source du bot provenant du serveur Discord  [Aide GNU/Linux-Fr"](https://discord.gg/79943dJ "Rejoindre le serveur"), il à été créé spécialement pour ce discord, si vous souhaitez l'utiliser il vous faudra modifier ``params.json`` et ``cogs/utils/checks.py`` ;)
+Ici ce trouve le code source du bot provenant du serveur Discord  [Aide GNU/Linux-Fr"](https://discord.gg/79943dJ "Rejoindre le serveur"), il à été créé spécialement pour ce discord, si vous souhaitez l'utiliser il vous faudra modifier.
+
+/!\ La partie web est temporairement H-S.
 
 ### Pré-requis
 
 Il vous faut :
 
 - Un ordinateur sous **GNU/Linux** avec une connexion à internet;
-- Python3.5 ou + ;
+- Python3.7 ou + ;
 - Installer ``requirements.txt`` (avec ``pip3 install -r requirements.txt`` par ex)
 
 ### Installation
 
-Une fois les pré-requis installés et ``config.py`` édité, placez vous dans le repertoire de tuxbot et lancez ``bot.py`` avec python3 (ex: ``python3 bot.py``)
+Une fois les pré-requis installés et ``config.py`` édité avec les ID discord et Mysql, placez vous dans le repertoire de tuxbot et lancez ``bot.py`` avec python3 (ex: ``python3 bot.py``).
+Pour utiliser ``launch.py`` les paquets ``python3-dialog`` et ``screen`` sont requis.
 
 ## Démarrage
 
 Placez vous dans le repertoire de tuxbot et exécutez ``bot.py`` avec python3 (ex: ``python3 bot.py``)
+Sinon vous pouvez utiliser ``launch.py`` qui lancera un ``screen`` en arrière plan.
 
 ## Fabriqué avec
 * [PyCharm](https://www.jetbrains.com/pycharm/) - Editeur de texte payant :3
@@ -32,10 +36,3 @@ Liste des versions : [Cliquer pour afficher](https://github.com/outout14/tuxbot-
 ## License
 
 Ce projet est sous licence ``Creative Commons BY-NC-SA 4.0`` - voir le fichier [LICENSE.md](LICENSE.md) pour plus d'informations
-
-
-
-## Support on Beerpay
-Hey dude! Help me out for a couple of :beers:!
-
-[![Beerpay](https://beerpay.io/outout14/tuxbot-bot/badge.svg?style=beer-square)](https://beerpay.io/outout14/tuxbot-bot)  [![Beerpay](https://beerpay.io/outout14/tuxbot-bot/make-wish.svg?style=flat-square)](https://beerpay.io/outout14/tuxbot-bot?focus=wish)
