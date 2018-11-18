@@ -1,75 +1,101 @@
-# -*- coding: utf-8 -*-
-import discord.utils
 from discord.ext import commands
 
 
-def is_owner_check(message):           #    OUTOUT id                RICK id               L4P1N id             GIGA id              FLAYOR id              ROMAIN id
-    owner = str(message.author.id) in ['171685542553976832', '163697401935298560', '88644904112128000', '92619860521005056', '273757386127441920', '269156684155453451'] ###ID's modo & admin
-    rights = str(message.author.top_role.name).upper() in ['ADMIN', 'ADMINISTRATEURS', 'ADMINISTRATEUR', 'MODO', 'MODÉRATEUR', 'MODÉRATEURS', 'MODERATEUR', 'MODERATEURS']
-    if rights == True or owner == True:
-        return True  # Owner of the bot
-    else: 
-        return False
+def is_owner_check(message):
+	return str(message.author.id) in ['171685542553976832', '269156684155453451']
 
 def is_owner(warn=True):
-    def check(ctx, warn):
-        owner = is_owner_check(ctx.message)
-        if not owner and warn:
-                print(ctx.message.author.name + " à essayer d'executer " + ctx.message.content)
-        return owner
+	def check(ctx, warn):
+		owner = is_owner_check(ctx.message)
+		if not owner and warn:
+				print(ctx.message.author.name + " à essayer d'executer " + ctx.message.content + " sur le serveur " + ctx.message.guild.name)
+		return owner
 
-    owner = commands.check(lambda ctx: check(ctx, warn))
-    return owner
+	owner = commands.check(lambda ctx: check(ctx, warn))
+	return owner
 
-def check_permissions(ctx, perms):
-    msg = ctx.message
-    if is_owner_check(msg):
-        return True
+"""--------------------------------------------------------------------------------------------------------------------------"""
 
-    ch = msg.channel
-    author = msg.author
-    resolved = ch.permissions_for(author)
-    return all(getattr(resolved, name, None) == value for name, value in perms.items())
+async def check_permissions(ctx, perms, *, check=all):
+	is_owner = await ctx.bot.is_owner(ctx.author)
+	if is_owner or is_owner_check(ctx.message) == True:
+		return True
 
+	resolved = ctx.channel.permissions_for(ctx.author)
+	return check(getattr(resolved, name, None) == value for name, value in perms.items())
 
-def role_or_permissions(ctx, check, **perms):
-    if check_permissions(ctx, perms):
-        return True
+def has_permissions(*, check=all, **perms):
+	async def pred(ctx):
+		return await check_permissions(ctx, perms, check=check)
+	return commands.check(pred)
 
-    ch = ctx.message.channel
-    author = ctx.message.author
-    if ch.is_private:
-        return False  # can't have roles in PMs
+async def check_guild_permissions(ctx, perms, *, check=all):
+	is_owner = await ctx.bot.is_owner(ctx.author)
+	if is_owner:
+		return True
 
-    role = discord.utils.find(check, author.roles)
-    return role is not None
+	if ctx.guild is None:
+		return False
 
+	resolved = ctx.author.guild_permissions
+	return check(getattr(resolved, name, None) == value for name, value in perms.items())
 
-def admin_or_permissions(**perms):
-    def predicate(ctx):
-        return role_or_permissions(ctx, lambda r: r.name == 'Bot Admin', **perms)
+def has_guild_permissions(*, check=all, **perms):
+	async def pred(ctx):
+		return await check_guild_permissions(ctx, perms, check=check)
+	return commands.check(pred)
 
-    return commands.check(predicate)
-
-
-def is_in_servers(*server_ids):
-    def predicate(ctx):
-        server = ctx.message.server
-        if server is None:
-            return False
-        return server.id in server_ids
-
-    return commands.check(predicate)
-
-def embed_perms(message):
-    try:
-        check = message.author.permissions_in(message.channel).embed_links
-    except:
-        check = True
-
-    return check
+# These do not take channel overrides into account
 
 def is_mod():
-    async def pred(ctx):
-        return await check_guild_permissions(ctx, {'manage_guild': True})
-    return commands.check(pred)
+	async def pred(ctx):
+		return await check_guild_permissions(ctx, {'manage_guild': True})
+	return commands.check(pred)
+
+def is_admin():
+	async def pred(ctx):
+		return await check_guild_permissions(ctx, {'administrator': True})
+	return commands.check(pred)
+
+def mod_or_permissions(**perms):
+	perms['manage_guild'] = True
+	async def predicate(ctx):
+		return await check_guild_permissions(ctx, perms, check=any)
+	return commands.check(predicate)
+
+def admin_or_permissions(**perms):
+	perms['administrator'] = True
+	async def predicate(ctx):
+		return await check_guild_permissions(ctx, perms, check=any)
+	return commands.check(predicate)
+
+def is_in_guilds(*guild_ids):
+	def predicate(ctx):
+		guild = ctx.guild
+		if guild is None:
+			return False
+		return guild.id in guild_ids
+	return commands.check(predicate)
+
+def is_lounge_cpp():
+	return is_in_guilds(145079846832308224)
+
+def get_user(message, user):
+	try:
+		member = message.mentions[0]
+	except:
+		member = message.guild.get_member_named(user)
+	if not member:
+		try:
+			member = message.guild.get_member(int(user))
+		except ValueError:
+			pass
+	if not member:
+		return None
+	return member
+
+def check_date(date: str):
+	if len(date) == 1:
+		return f"0{date}"
+	else:
+		return date

@@ -1,6 +1,6 @@
 **Commandes utilitaires**
--> .afk : Signaler son absence
--> .back : Signaler son retour
+-> .afk : Signaler son absence *(commande désactivée)*
+-> .back : Signaler son retour *(commande désactivée)*
 -> .clock _ville_: Affiche l'heure et quelques infos sur la ville en question
 -> .ytdiscover : Découvrir des chaines youtube
 -> .search _site_ _contenu_ : Fait une recherche sur un site (.search pour plus d'infos)
@@ -8,7 +8,11 @@
 -> .poke _@pseudo_ : Poke _@pseudo_
 -> .hastebin _code_ : Poste du code sur hastebin
 -> .sondage _question_ | _reponse_ | _reponse_ | _option_ : Créer un sondage avec des réactions
--> .sondage_aide : Affiche l'aide pour la commande sondage
+-> .sondage : Affiche l'aide pour la commande sondage
+-> .role _nomdurole_ : Ajoute/Retire le rôle en question
+-> .iplocalise _IP ou NDD_ : affiche la localisation et le propriétaire de l'ip (ou de l'IP lié a un nom de domaine)
+-> .getheaders _IP ou NDD_ : affiche les en-têtes (headers) d'une IP/Nom de domaine via HTTP/HTTPS/FTP
+-> .btcprice : Affiche le prix du bitcoin
 
 **Commandes Funs**
 -> .joke : Affiche une blague aléatoire
@@ -30,6 +34,6 @@
 **Commandes diverses** :
 -> .info : Affiche des informations sur le bot
 -> .help : Affiche ce message
--> .clock list: Affiche la liste des horloges des villes
+-> .clock : Affiche la liste des horloges des villes
 -> .ping : Ping le bot
 -> .github : Affiche le repos Github du Bot :heart:

@@ -1,7 +1,7 @@
 
 <:stafftools:314348604095594498> **Développement** :
-  └> Outout : [outout.tech](https://outout.tech/)
-  └> Romain : [son github](https://github.com/Rom194)
+  └> Outout : [outout.xyz](https://outout.xyz/)
+  └> Romain : [son github](http://git.dyjix.eu/Romain)
   └> Langage : [Python3](http://www.python.org/)
   └> Api : [discord.py {3}](https://github.com/Rapptz/discord.py)
   └> En se basant sur : [RobotDanny](https://github.com/Rapptz/RoboDanny)
@@ -14,6 +14,7 @@
   └> <:discord:314003252830011395> : Outout#8406
   └> <:twitter:314349922877046786> : [@outout14_](https://twitter.com/outout14_)
   └> <:mail:334345653419245571> : [outout@linuxmail.org](mailto:outout@linuxmail.org)
+  └> <:discord:314003252830011395> : Romain#5117
 
 
 <:discord:314003252830011395> **Serveurs** :
