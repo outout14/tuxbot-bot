@@ -1,0 +1,8 @@
+#Don't track user data
+data/users/
+
+#Python
+__pycache__/
+*.pyc
+.env
+config.py

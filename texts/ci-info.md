@@ -7,5 +7,5 @@ La carte d'identité est un petit système dans tuxbot permetant de vous démarq
 -> .ci setos _nom de l'os_ : Défini votre système d'exploitation
 -> .ci setconfig _votre configuration pc_ : Défini la configuration de votre ordinateur
 -> .ci setcountry : Défini votre pays
--> .ci update : Met à jour votre image si vous l'avez changé :wink:
--> .ci delete : Supprime votre carte d'identité :sob:
+-> .ci update : Met à jour votre image si vous l'avez changé
+-> .ci delete : Supprime votre carte d'identité

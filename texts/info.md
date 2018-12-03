@@ -1,7 +1,7 @@
 
 <:stafftools:314348604095594498> **Développement** :
-  └> Outout : [outout.tech](https://outout.tech/)
-  └> Romain : [son github](https://github.com/Rom194)
+  └> Outout : [outout.xyz](https://outout.xyz/)
+  └> Romain : [son github](http://git.dyjix.eu/Romain)
   └> Langage : [Python3](http://www.python.org/)
   └> Api : [discord.py {3}](https://github.com/Rapptz/discord.py)
   └> En se basant sur : [RobotDanny](https://github.com/Rapptz/RoboDanny)
@@ -12,12 +12,13 @@
 
 <:contact:334347787200233483> **Contact** :
   └> <:discord:314003252830011395> : Outout#8406
-  └> <:twitter:314349922877046786> : [@outout14_](https://twitter.com/outout14_)
-  └> <:mail:334345653419245571> : [outout@linuxmail.org](mailto:outout@linuxmail.org)
+  └> <:twitter:314349922877046786> : [@outoutxyz](https://twitter.com/outouxyz)
+  └> <:mail:334345653419245571> : [mael@gnous.eu](mailto:mael@gnous.eu)
+  └> <:discord:314003252830011395> : Romain#5117
 
 
 <:discord:314003252830011395> **Serveurs** :
-  └> <:tux:282212977627758593> Serveur de TuxBot : [rejoindre](https://discord.gg/5UZy8Pn)
-  └> <:tux:282212977627758593> Serveur GNU/Linux-Fr : [rejoindre](https://discord.gg/B5TzW7x)
+  └> :tux: Serveur de TuxBot : [rejoindre](https://discord.gg/5UZy8Pn)
+  └> <:tux:514930485751971866> Serveur GNU/Linux-Fr : [rejoindre](https://discord.gg/B5TzW7x)
 
 
