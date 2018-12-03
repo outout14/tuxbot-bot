@@ -1,6 +1,6 @@
 # Tuxbot
 TuxBot, un bot discord écrit en Python. Il dispose d'une multitude de fonctionnalités.
-Ici ce trouve le code source du bot provenant du serveur Discord  [Aide GNU/Linux-Fr"](https://discord.gg/79943dJ "Rejoindre le serveur"), il à été créé spécialement pour ce discord, si vous souhaitez l'utiliser il vous faudra modifier ``params.json`` et ``cogs/utils/checks.py`` ;)
+Ici ce trouve le code source du bot provenant du serveur Discord  ["Gnous.eu"](https://discord.gg/79943dJ "Rejoindre le serveur").
 
 ## Installation
 [Voir le guide d'installation](https://wiki.gnous.eu/wiki/Tuxbot/Install)
