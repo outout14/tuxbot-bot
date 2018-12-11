@@ -25,7 +25,7 @@ class Funs:
 		embed = discord.Embed(title="Avatar de : " + user.name,
 							  url=user.avatar_url_as(format="png"),
 							  description=f"[Voir en plus grand]({user.avatar_url_as(format='png')})")
-		embed.set_thumbnail(url=user.user.avatar_url_as(format="png"))
+		embed.set_thumbnail(url=user.avatar_url_as(format="png"))
 		await ctx.send(embed=embed)
 
 	"""--------------------------------------------------------------------------------------------------------------------------"""
