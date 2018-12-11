@@ -19,16 +19,14 @@ class Sondage:
 			time = [x for x in options if x.startswith("time=")]
 			if time:
 				time = time[0]
-			if time:
 				options.remove(time)
-			if len(options) <= 1:
-				raise commands.errors.MissingRequiredArgument
-			if len(options) >= 21:
-				return await ctx.send(ctx.message.author.mention + "> :octagonal_sign: Vous ne pouvez pas mettre plus de 20 réponses !")
-			if time:
 				time = int(time.strip("time="))
 			else:
 				time = 0
+			if len(options) <= 1:
+				raise commands.errors.MissingRequiredArgument
+			if len(options) >= 21:
+				return await ctx.send(ctx.author.mention + "> :octagonal_sign: Vous ne pouvez pas mettre plus de 20 réponses !")
 			emoji = ['1⃣',
 					 '2⃣',
 					 '3⃣',
@@ -56,7 +54,7 @@ class Sondage:
 				confirmation_msg += "{} - {}\n".format(emoji[idx], option)
 				to_react.append(emoji[idx])
 			confirmation_msg += "*Sondage proposé par* " + \
-								str(ctx.message.author.mention)
+								str(ctx.author.mention)
 			if time == 0:
 				confirmation_msg += ""
 			else:
