@@ -4,8 +4,6 @@ import asyncio
 import urllib.request
 import wikipedia
 
-wikipedia.set_lang("fr")
-
 
 class Search:
 	"""Commandes de WWW."""
@@ -26,7 +24,7 @@ class Search:
 	@_search.command(pass_context=True, name="docubuntu")
 	async def search_docubuntu(self, ctx, args):
 		attends = await ctx.send("_Je te cherche ça {} !_".format(
-			ctx.message.author.mention))
+			ctx.author.mention))
 		html = urllib.request.urlopen("https://doc.ubuntu-fr.org/" +
 									  args).read()
 		if "avez suivi un lien" in str(html):
@@ -52,7 +50,7 @@ class Search:
 	@_search.command(pass_context=True, name="docarch")
 	async def search_docarch(self, ctx, args):
 		attends = await ctx.send("_Je te cherche ça {} !_".format(
-			ctx.message.author.mention))
+			ctx.author.mention))
 		html = urllib.request.urlopen("https://wiki.archlinux.org/index.php/" +
 									  args).read()
 		if "There is currently no text in this page" in str(html):
@@ -75,11 +73,24 @@ class Search:
 		   await ctx.send(embed=embed)
 
 	@_search.command(pass_context=True, name="wikipedia")
-	async def search_wikipedia(self, ctx: commands.Context, args):
+	async def search_wikipedia(self, ctx: commands.Context, *, args):
 		"""Fait une recherche sur wikipd"""
 
+		params = args.split(" ")
+
+		lang = [x for x in params if x.startswith("lang=")]
+		if lang:
+			lang = lang[0]
+			params.remove(lang)
+			lang = lang.replace("lang=", "")
+			wikipedia.set_lang(lang)
+		else:
+			wikipedia.set_lang("fr")
+
+		params = ' '.join(params)
+
 		wait = await ctx.send("_Je cherche..._")
-		results = wikipedia.search(args)
+		results = wikipedia.search(params)
 		nbmr = 0
 		mmssgg = ""
 
@@ -87,7 +98,7 @@ class Search:
 			nbmr = nbmr + 1
 			mmssgg = mmssgg + "**{}**: {} \n".format(str(nbmr), value)
 
-		em = discord.Embed(title='Résultats de : ' + args,
+		em = discord.Embed(title='Résultats de : ' + params,
 						   description = mmssgg,
 						   colour=0x4ECDC4)
 		em.set_thumbnail(url="https://upload.wikimedia.org/wikipedia/commons/"
@@ -124,7 +135,7 @@ class Search:
 		try:
 			await msg.delete()
 			await ctx.trigger_typing()
-			wait = await ctx.send(ctx.message.author.mention +
+			wait = await ctx.send(ctx.author.mention +
 								  " ah ok sympa cette recherche, je l'effectue de suite !")
 			wp = wikipedia.page(args_)
 			wp_contenu = wp.summary[:200] + "..."
