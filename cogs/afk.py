@@ -1,62 +1,53 @@
 from discord.ext import commands
+import discord
 import random
 
 
-class AFK:
+class AFK(commands.Cog):
     """Commandes utilitaires."""
 
     def __init__(self, bot):
         self.bot = bot
+        self.afk_users = []
 
     """---------------------------------------------------------------------"""
 
     @commands.command(pass_context=True)
-    async def afk(self, ctx):
-        
-        user = ctx.message.author
+    async def afk(self, ctx, action: str = ""):
 
-        try:
-            await user.edit(nick="[AFK] "+str(user.name))
-            author = ctx.message.author
-            channel = await author.create_dm()
-            await channel.send("Ton pseudo a prit le prefix `[AFK]` pour "
-                               "monter que tu es absent,")
-            await channel.send("tu auras juste a mettre un message pour que "
-                               "je signale ton retour parmis nous et que je "
-                               "retire le prefix `[AFK]` de ton pseudo 😉")
+        if action.lower() == "list":
+            try:
+                await ctx.send(*self.afk_users)
+            except discord.HTTPException:
+                await ctx.send("Il n'y a personne d'afk...")
+        else:
+            user = ctx.author
+            self.afk_users.append(user)
+            msgs = ["s'absente de discord quelques instants",
+                    "se casse de son pc",
+                    "va sortir son chien",
+                    "reviens bientôt",
+                    "va nourrir son cochon",
+                    "va manger des cookies",
+                    "va manger de la poutine",
+                    "va faire caca",
+                    "va faire pipi"]
 
-        except KeyError:
-            print('')
-            author = ctx.message.author
-            channel = await author.create_dm()
-            await channel.send("Tu auras juste a mettre un message pour que "
-                               "je signale ton retour parmis nous 😉")
-
-        msgs = ["s'absente de discord quelques instants",
-                "se casse de son pc",
-                "va sortir son chien",
-                "reviens bientôt",
-                "va nourrir son cochon",
-                "va manger des cookies",
-                "va manger de la poutine",
-                "va faire caca",
-                "va faire pipi"]
-        msg = random.choice(msgs)
-
-        await ctx.send("**{}** {}...".format(ctx.message.author.mention, msg))
+            await ctx.send(f"**{user.mention}** {random.choice(msgs)}...")
 
     """---------------------------------------------------------------------"""
 
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if message.author.bot \
+                or message.guild.id != int(self.bot.config.main_server_id):
+            return
 
-async def on_message(message):
+        user = message.author
 
-    ni = str(message.author.nick)
-
-    if ni:
-        ni2 = ni.split(" ")
-        if "[AFK]" in ni2:
-            user = message.author
-            await user.edit(nick=None)
+        if user in self.afk_users \
+                and message.content != self.bot.config.prefix[0] + "afk":
+            self.afk_users.remove(user)
 
             msgs = ["a réssuscité",
                     "est de nouveau parmi nous",
@@ -68,10 +59,9 @@ async def on_message(message):
                     "a fini de danser",
                     "s'est réveillé",
                     "est de retour dans ce monde cruel"]
-            msg = random.choice(msgs)
 
-            await message.channel.send("**{}** {} !".format(
-                message.author.mention, msg))
+            await message.channel.send(f"**{user.mention}**"
+                                       f" {random.choice(msgs)}...")
 
 
 def setup(bot):

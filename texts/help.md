@@ -11,16 +11,17 @@
 -> .sondage : Affiche l'aide pour la commande sondage
 -> .role _nomdurole_ : Ajoute/Retire le rôle en question
 -> .iplocalise _IP ou NDD_ : affiche la localisation et le propriétaire de l'ip (ou de l'IP lié a un nom de domaine)
+-> .iplocalise _IP ou NDD_ **ipv6**: affiche la localisation et le propriétaire de l'ip en forçant sur l'IPv6 (ou de l'IP lié a un nom de domaine)
 -> .getheaders _IP ou NDD_ : affiche les en-têtes (headers) d'une IP/Nom de domaine via HTTP/HTTPS/FTP
 -> .btcprice : Affiche le prix du bitcoin
-
+[split]
 **Commandes Funs**
 -> .joke : Affiche une blague aléatoire
 -> .ethylotest : Simule un ethylotest détraqué
 -> .pokemon : Lance un combat de pokémons
 -> .coin : Simule un pile ou face
 -> .randomcat : Affiche des image de chats :3
-
+[split]
 **Commandes Carte d'Identité**
 -> .ci : Affiche l'aide sur les cartes d'identité
 -> .ci show _pseudo_ : Affiche la carte d'identité de _pseudo_
@@ -30,10 +31,10 @@
 -> .ci setcountry : Défini votre pays 
 -> .ci update : Met à jour votre image si vous l'avez changé :wink:
 -> .ci delete : Supprime votre carte d'identité **a tous jamais**
-
+[split]
 **Commandes diverses** :
 -> .info : Affiche des informations sur le bot
 -> .help : Affiche ce message
 -> .clock : Affiche la liste des horloges des villes
 -> .ping : Ping le bot
--> .github : Affiche le repos Github du Bot :heart:
+-> .git : Affiche le repos Gitea du Bot :heart:

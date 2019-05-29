@@ -1,9 +1,0 @@
-{
-    "token": "bot token",
-    "bots_key": "not required",
-    "client_id": "client id (Pas obligatoire)",
-	"game": "Eating apples - .help",
-	"prefix": [
-		"."
-	]
-}

@@ -1,17 +1,19 @@
-from discord.ext import commands
+import aiohttp
+import datetime
 import discord
-
+import imghdr
+import os
+import shutil
 from PIL import Image
 from PIL import ImageOps
+from discord.ext import commands
 
-from .utils import checks
 from .utils import db
+from .utils.checks import get_user
 from .utils.passport_generator import generate_passport
-from .utils.checks import get_user, check_date
 
-import asyncio, aiohttp, io, time, imghdr, os, shutil, json, textwrap, re, math, datetime
 
-class Passport:
+class Passport(commands.Cog):
 	"""Commandes des passeports ."""
 
 	def __init__(self, bot):
