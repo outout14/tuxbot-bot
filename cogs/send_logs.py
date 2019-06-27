@@ -23,7 +23,7 @@ class SendLogs(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        self.log_channel = self.bot.get_channel(int(self.bot.config.log_channel_id))
+        self.log_channel = await self.bot.fetch_channel(int(self.bot.config.log_channel_id))
         em = discord.Embed(title="Je suis opérationnel 😃",
                            description=f"*Instance lancée sur "
                            f"{socket.gethostname()}*", colour=0x5cb85c)

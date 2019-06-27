@@ -3,7 +3,6 @@ import json
 import pytz
 import random
 import urllib
-import socket
 
 import discord
 import requests
@@ -177,7 +176,6 @@ class Utility(commands.Cog):
         em = discord.Embed(title='Heure à Moscou', description=f"A [Moscou]({site}) {country}, Il est **{str(tt)}** ! \n {description} \n _source des images et du texte : [Wikimedia foundation](http://commons.wikimedia.org/)_", colour=0xEEEEEE)
         em.set_thumbnail(url = img)
         await ctx.send(embed=em)
-            
 
     """---------------------------------------------------------------------"""
 
@@ -213,8 +211,7 @@ class Utility(commands.Cog):
     """---------------------------------------------------------------------"""
 
     @commands.command(name='iplocalise', pass_context=True)
-    async def _iplocalise(self, ctx, ipaddress, iptype=""):
-        realipaddress = ipaddress
+    async def _iplocalise(self, ctx, ipaddress):
         """Recup headers."""
         if ipaddress.startswith("http://"):
             if ipaddress[-1:] == '/':
@@ -224,40 +221,45 @@ class Utility(commands.Cog):
             if ipaddress[-1:] == '/':
                 ipaddress = ipaddress[:-1]
             ipaddress = ipaddress.split("https://")[1]
-        
-        if(iptype=="ipv6" or iptype=="v6"):
-            try:
-                ipaddress = socket.getaddrinfo(ipaddress, None, socket.AF_INET6)[1][4][0]
-            except:
-                await ctx.send("Erreur, cette adresse n'est pas disponible en IPv6.")
-                return
 
         iploading = await ctx.send("_réfléchis..._")
         ipapi = urllib.request.urlopen("http://ip-api.com/json/" + ipaddress)
         ipinfo = json.loads(ipapi.read().decode())
 
         if ipinfo["status"] != "fail":
-            if ipinfo['query']:
-                embed = discord.Embed(title=f"Informations pour ``{realipaddress}`` *`({ipinfo['query']})`*", color=0x5858d7)
-
             if ipinfo['org']:
-                embed.add_field(name="Appartient à :", value=ipinfo['org'], inline = False)
+                org = ipinfo['org']
+            else:
+                org = 'n/a'
+
+            if ipinfo['query']:
+                ip = ipinfo['query']
+            else:
+                ip = 'n/a'
 
             if ipinfo['city']:
-                embed.add_field(name="Se situe à :", value=ipinfo['city'], inline = True)
+                city = ipinfo['city']
+            else:
+                city = 'n/a'
 
+            if ipinfo['regionName']:
+                regionName = ipinfo['regionName']
+            else:
+                regionName = 'n/a'
 
             if ipinfo['country']:
-                if ipinfo['regionName']:
-                    regionName = ipinfo['regionName']
-                else:
-                    regionName = "N/A"
-                embed.add_field(name="Region :", value=f"{regionName} ({ipinfo['country']})", inline = True)
+                country = ipinfo['country']
+            else:
+                country = 'n/a'
 
+            embed = discord.Embed(title=f"Informations pour {ipaddress} *`({ip})`*", color=0x5858d7)
+            embed.add_field(name="Appartient à :", value=org, inline = False)
+            embed.add_field(name="Se situe à :", value=city, inline = True)
+            embed.add_field(name="Region :", value=f"{regionName} ({country})", inline = True)
             embed.set_thumbnail(url=f"https://www.countryflags.io/{ipinfo['countryCode']}/flat/64.png")
             await ctx.send(embed=embed)
         else:
-            await ctx.send(content=f"Erreur, impossible d'avoir des informations sur l'adresse IP ``{ipinfo['query']}``")
+            await ctx.send(content=f"Erreur, impossible d'avoir des informations sur l'adresse IP {ipinfo['query']}")
         await iploading.delete()
 
     """---------------------------------------------------------------------"""
@@ -310,13 +312,48 @@ class Utility(commands.Cog):
         """Pour voir mon code"""
         text = "How tu veux voir mon repos Gitea pour me disséquer ? " \
                "Pas de soucis ! Je suis un Bot, je ne ressens pas la " \
-               "douleur !\n https://git.gnous.eu/gnous/tuxbot"
+               "douleur !\n https://git.gnous.eu/gnouseu/tuxbot-bot"
         em = discord.Embed(title='Repos TuxBot-Bot', description=text, colour=0xE9D460)
         em.set_author(name='Gnous', icon_url="https://cdn.discordapp.com/"
                                              "icons/280805240977227776/"
                                              "9ba1f756c9d9bfcf27989d0d0abb3862"
                                              ".png")
         await ctx.send(embed=em)
+
+    """---------------------------------------------------------------------"""
+
+    @commands.command(name='quote', pass_context=True)
+    async def _quote(self, ctx, quote_id):
+        global quoted_message
+
+        async def get_message(message_id: int):
+            for channel in ctx.message.guild.channels:
+                if isinstance(channel, discord.TextChannel):
+                    test_chan = await self.bot.fetch_channel(channel.id)
+                    try:
+                        return await test_chan.fetch_message(message_id)
+                    except discord.NotFound:
+                        pass
+            return None
+
+        quoted_message = await get_message(int(quote_id))
+
+        if quoted_message is not None:
+            embed = discord.Embed(colour=quoted_message.author.colour,
+                                  description=quoted_message.clean_content,
+                                  timestamp=quoted_message.created_at)
+            embed.set_author(name=quoted_message.author.display_name,
+                             icon_url=quoted_message.author.avatar_url_as(
+                                 format="jpg"))
+            if len(quoted_message.attachments) >= 1:
+                embed.set_image(url=quoted_message.attachments[0].url)
+            embed.add_field(name="**Original**",
+                            value=f"[Go!]({quoted_message.jump_url})")
+            embed.set_footer(text="#" + quoted_message.channel.name)
+
+            await ctx.send(embed=embed)
+        else:
+            await ctx.send("Impossible de trouver le message.")
 
 
 def setup(bot):

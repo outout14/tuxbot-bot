@@ -24,10 +24,8 @@ l_extensions = (
     'cogs.atc',
     'cogs.basics',
     'cogs.ci',
-    'cogs.cog_manager',
     'cogs.filter_messages',
     'cogs.funs',
-    'cogs.passport',
     'cogs.role',
     'cogs.search',
     'cogs.send_logs',
@@ -46,8 +44,7 @@ class TuxBot(commands.Bot):
         super().__init__(command_prefix=self.config.prefix[0],
                          description=self.config.description,
                          pm_help=None,
-                        help_command = None
-        )
+                         help_command=None)
 
         self.client_id = self.config.client_id
         self.session = aiohttp.ClientSession(loop=self.loop)
@@ -67,10 +64,10 @@ class TuxBot(commands.Bot):
 
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.NoPrivateMessage):
-            await ctx.author.send('Cette commande ne peut pas être utilisée '
-                                  'en message privé.')
+            await ctx.author.send('Cette commande ne peut pas être utilisee '
+                                  'en message privee.')
         elif isinstance(error, commands.DisabledCommand):
-            await ctx.author.send('Desolé mais cette commande est desactivée, '
+            await ctx.author.send('Desoler mais cette commande est desactive, '
                                   'elle ne peut donc pas être utilisée.')
         elif isinstance(error, commands.CommandInvokeError):
             print(f'In {ctx.command.qualified_name}:', file=sys.stderr)
@@ -79,13 +76,13 @@ class TuxBot(commands.Bot):
                   file=sys.stderr)
 
     async def on_ready(self):
-        log_channel_id = self.get_channel(int(self.config.log_channel_id))
+        log_channel_id = await self.fetch_channel(self.config.log_channel_id)
 
         print('\n\n---------------------')
         print('CONNECTÉ :')
         print(f'Nom d\'utilisateur: {self.user} {colors.text_style.DIM}'
               f'(ID: {self.user.id}){colors.ENDC}')
-        print(f'Salon de journalisation: {log_channel_id} {colors.text_style.DIM}'
+        print(f'Channel de log: {log_channel_id} {colors.text_style.DIM}'
               f'(ID: {log_channel_id.id}){colors.ENDC}')
         print(f'Prefix: {self.config.prefix[0]}')
         print('Merci d\'utiliser TuxBot')
@@ -93,7 +90,7 @@ class TuxBot(commands.Bot):
 
         await self.change_presence(status=discord.Status.dnd,
                                    activity=discord.Game(
-                                       name=self.config.game),
+                                       name=self.config.game)
                                    )
 
     @staticmethod

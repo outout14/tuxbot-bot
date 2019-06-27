@@ -16,6 +16,7 @@ class text_colors:
 	LIGHT_CYAN = '\033[96m'
 	WHITE = '\033[97m'
 
+
 class bg_colors:
 	BLACK = '\033[40m'
 	RED = '\033[41m'
@@ -34,10 +35,12 @@ class bg_colors:
 	LIGHT_CYAN = '\033[106m'
 	WHITE = '\033[107m'
 
+
 class text_style:
 	BOLD = '\033[1m'
 	DIM = '\033[2m'
 	UNDERLINE = '\033[4m'
 	BLINK = '\033[5m'
-	
+
+
 ENDC = '\033[0m'
